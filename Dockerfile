@@ -22,4 +22,6 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 8000
 
 # .env (secrets) is mounted/injected at runtime, never baked into the image.
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Most PaaS hosts (Render, Railway, Heroku-style) inject a $PORT the container MUST
+# bind to and override it at deploy time — falls back to 8000 for plain `docker run`.
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
