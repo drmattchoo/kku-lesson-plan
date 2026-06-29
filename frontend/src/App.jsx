@@ -586,11 +586,89 @@ function OutlineEditor({ sessionId, lecture, onSaved }) {
   )
 }
 
-function ComingSoon({ stageIndex }) {
+async function downloadBlob(resp, filename) {
+  await parseErrorOrThrow(resp)
+  const blob = await resp.blob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
+
+function ExportScreen({ sessionId, lecture, completedLectureIds, onPickAnother }) {
+  const [sessionDate, setSessionDate] = useState('')
+  const [sessionTime, setSessionTime] = useState('')
+  const [downloading, setDownloading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleDownloadOne() {
+    setDownloading(true)
+    setError('')
+    try {
+      const resp = await fetch('/api/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sid: sessionId, lectureId: lecture.id, sessionDate, sessionTime }),
+        credentials: 'include',
+      })
+      await downloadBlob(resp, `lesson_plan_${lecture.id}.docx`)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setDownloading(false)
+    }
+  }
+
+  async function handleDownloadBatch() {
+    setDownloading(true)
+    setError('')
+    try {
+      const resp = await fetch('/api/export/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sid: sessionId, lectureIds: completedLectureIds, sessionDate, sessionTime }),
+        credentials: 'include',
+      })
+      await downloadBlob(resp, 'lesson_plans.zip')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setDownloading(false)
+    }
+  }
+
   return (
-    <div className="coming-soon">
-      <h2>{STAGES[stageIndex]}</h2>
-      <p>ขั้นตอนนี้ยังอยู่ระหว่างการพัฒนา</p>
+    <div className="export-screen">
+      <h2>ดาวน์โหลดแผนการสอน: {lecture.topic}</h2>
+
+      <label>
+        วันที่สอน
+        <input value={sessionDate} onChange={(e) => setSessionDate(e.target.value)} placeholder="เช่น 1 กรกฎาคม 2569" />
+      </label>
+      <label>
+        เวลาสอน
+        <input value={sessionTime} onChange={(e) => setSessionTime(e.target.value)} placeholder="เช่น 09:00-10:00" />
+      </label>
+
+      {error && <p className="form-error">{error}</p>}
+
+      <button type="button" onClick={handleDownloadOne} disabled={downloading}>
+        {downloading ? 'กำลังสร้างไฟล์…' : 'ดาวน์โหลด .docx (หัวข้อนี้)'}
+      </button>
+
+      {completedLectureIds.length > 1 && (
+        <button type="button" onClick={handleDownloadBatch} disabled={downloading}>
+          ดาวน์โหลดทั้งหมด ({completedLectureIds.length} หัวข้อ) เป็น .zip
+        </button>
+      )}
+
+      <button type="button" className="secondary-button" onClick={onPickAnother}>
+        + เพิ่มแผนการสอนสำหรับหัวข้ออื่น
+      </button>
     </div>
   )
 }
@@ -600,6 +678,7 @@ function App() {
   const [sessionId, setSessionId] = useState(null)
   const [course, setCourse] = useState(null)
   const [selectedLecture, setSelectedLecture] = useState(null)
+  const [completedLectureIds, setCompletedLectureIds] = useState([])
 
   function handleCreated(newSessionId) {
     setSessionId(newSessionId)
@@ -614,6 +693,13 @@ function App() {
   function handleLectureChosen(lecture) {
     setSelectedLecture(lecture)
     setStage(3)
+  }
+
+  function handleOutlineSaved() {
+    setCompletedLectureIds((ids) =>
+      ids.includes(selectedLecture.id) ? ids : [...ids, selectedLecture.id]
+    )
+    setStage(4)
   }
 
   return (
@@ -643,17 +729,16 @@ function App() {
           <OutlineEditor
             sessionId={sessionId}
             lecture={selectedLecture}
-            onSaved={() => setStage(4)}
+            onSaved={handleOutlineSaved}
           />
         )}
-        {stage >= 4 && (
-          <>
-            <p className="session-id">
-              Session: {sessionId}
-              {selectedLecture && ` · หัวข้อ: ${selectedLecture.topic}`}
-            </p>
-            <ComingSoon stageIndex={stage} />
-          </>
+        {stage === 4 && selectedLecture && (
+          <ExportScreen
+            sessionId={sessionId}
+            lecture={selectedLecture}
+            completedLectureIds={completedLectureIds}
+            onPickAnother={() => setStage(2)}
+          />
         )}
       </main>
     </div>

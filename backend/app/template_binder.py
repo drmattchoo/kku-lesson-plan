@@ -55,7 +55,12 @@ def _prepare_context(context: dict) -> dict:
         }
         for kp in context.get("keyPoints", [])
     ]
-    return {**context, "keyPoints": key_points}
+    # the PLO/CLO heading list paragraphs hardcode "PLO{{ plo.id }}"/"CLO{{ clo.id }}"
+    # in the template itself — same double-prefix risk as the table column, so the
+    # ids fed to those paragraphs must be normalized too.
+    plos = [{**plo, "id": _strip_prefix(plo["id"], "PLO")} for plo in context.get("PLOs", [])]
+    clos = [{**clo, "id": _strip_prefix(clo["id"], "CLO")} for clo in context.get("CLOs", [])]
+    return {**context, "keyPoints": key_points, "PLOs": plos, "CLOs": clos}
 
 
 def render_lesson_plan(context: dict, output_path: Path) -> Path:
