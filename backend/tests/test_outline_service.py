@@ -96,6 +96,19 @@ def test_generate_outline_defaults_duration_when_lecture_has_none():
     assert "Scheduled duration: 60 minutes" in user_prompt
 
 
+def test_generate_outline_retries_once_then_succeeds_on_malformed_first_response():
+    provider = MagicMock()
+    provider.complete_json.side_effect = [
+        {"wrongKey": "no keyPoints field at all"},
+        {"keyPoints": VALID_KEY_POINTS},
+    ]
+
+    outline = generate_outline(LECTURE, CLOS, provider=provider)
+
+    assert outline.lectureId == "3"
+    assert provider.complete_json.call_count == 2
+
+
 def test_generate_outline_uses_default_provider_when_none_given(monkeypatch):
     import app.outline_service as svc
 

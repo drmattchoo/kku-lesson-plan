@@ -70,6 +70,19 @@ def test_extract_course_raises_on_missing_required_field():
         extract_course("text", provider=provider)
 
 
+def test_extract_course_retries_once_then_succeeds_on_bad_first_response():
+    provider = MagicMock()
+    provider.complete_json.side_effect = [
+        {"courseName": "missing courseCode on first attempt"},
+        {"courseCode": "MD1", "courseName": "Recovered", "PLOs": [], "CLOs": [], "lectures": []},
+    ]
+
+    result = extract_course("text", provider=provider)
+
+    assert result.courseCode == "MD1"
+    assert provider.complete_json.call_count == 2
+
+
 def test_extract_course_uses_default_provider_when_none_given(monkeypatch):
     import app.extraction_service as svc
 

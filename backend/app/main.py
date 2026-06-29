@@ -14,6 +14,7 @@ from app.document_loaders import load_document_text
 from app.extraction_service import extract_course
 from app.lesson_plan_assembler import build_render_context
 from app.outline_service import generate_outline
+from app.rate_limit import enforce_rate_limit
 from app.schemas import (
     CLO,
     BatchExportRequest,
@@ -71,6 +72,7 @@ def extract(
     slides: Optional[UploadFile] = File(None),
     user: dict = Depends(require_kku_user),
 ) -> dict:
+    enforce_rate_limit(f"extract:{user['email']}", max_calls=5, window_seconds=60)
     session = _owned_session(sid, user)
 
     spec_path = _save_upload_to_tmp(spec)
@@ -113,6 +115,7 @@ def put_course(
 
 @app.post("/api/outline")
 def create_outline(req: OutlineRequest, user: dict = Depends(require_kku_user)) -> dict:
+    enforce_rate_limit(f"outline:{user['email']}", max_calls=10, window_seconds=60)
     session = _owned_session(req.sid, user)
     course = session.get("course")
     if course is None:

@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Optional
 
 from app.llm import LLMProvider, get_provider
+from app.retry import call_with_retry
 from app.schemas import ExtractedCourse
 
 SYSTEM_PROMPT = """\
@@ -44,5 +45,9 @@ Rules:
 
 def extract_course(document_text: str, provider: Optional[LLMProvider] = None) -> ExtractedCourse:
     provider = provider or get_provider()
-    raw = provider.complete_json(SYSTEM_PROMPT, document_text, max_tokens=8000)
-    return ExtractedCourse.model_validate(raw)
+
+    def attempt() -> ExtractedCourse:
+        raw = provider.complete_json(SYSTEM_PROMPT, document_text, max_tokens=8000)
+        return ExtractedCourse.model_validate(raw)
+
+    return call_with_retry(attempt)

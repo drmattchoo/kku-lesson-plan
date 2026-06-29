@@ -99,6 +99,19 @@ def test_create_outline_requires_login(tmp_path, monkeypatch):
     assert resp.status_code == 401
 
 
+def test_create_outline_is_rate_limited_per_user(monkeypatch, tmp_path):
+    client = _logged_in_client(monkeypatch, tmp_path, email="ratelimit-outline@kku.ac.th")
+    sid = _session_with_course(client)
+    monkeypatch.setattr(main_module, "generate_outline", lambda lecture, clos, grounding=None: FAKE_OUTLINE)
+
+    for _ in range(10):
+        resp = client.post("/api/outline", json={"sid": sid, "lectureId": "4"})
+        assert resp.status_code == 200
+
+    resp = client.post("/api/outline", json={"sid": sid, "lectureId": "4"})
+    assert resp.status_code == 429
+
+
 def test_update_outline_recomputes_total_and_persists(monkeypatch, tmp_path):
     client = _logged_in_client(monkeypatch, tmp_path)
     sid = _session_with_course(client)

@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import List, Optional
 
 from app.llm import LLMProvider, get_provider
+from app.retry import call_with_retry
 from app.schemas import CLO, KeyPoint, Lecture, LectureOutline, OutlineGrounding
 
 DEFAULT_DURATION_MIN = 60
@@ -70,14 +71,16 @@ def generate_outline(
 ) -> LectureOutline:
     provider = provider or get_provider()
     user_prompt = _build_user_prompt(lecture, clos, grounding)
-    raw = provider.complete_json(SYSTEM_PROMPT, user_prompt, max_tokens=4000)
 
-    key_points = [KeyPoint.model_validate(kp) for kp in raw["keyPoints"]]
-    # trust our own arithmetic over whatever total the model may have stated —
-    # M9's "live total" editor is where the instructor reconciles this against the
-    # lecture's scheduled time, not a hard gate here.
-    total_duration_min = sum(kp.durationMin for kp in key_points)
+    def attempt() -> LectureOutline:
+        raw = provider.complete_json(SYSTEM_PROMPT, user_prompt, max_tokens=4000)
+        key_points = [KeyPoint.model_validate(kp) for kp in raw["keyPoints"]]
+        # trust our own arithmetic over whatever total the model may have stated —
+        # M9's "live total" editor is where the instructor reconciles this against
+        # the lecture's scheduled time, not a hard gate here.
+        total_duration_min = sum(kp.durationMin for kp in key_points)
+        return LectureOutline(
+            lectureId=lecture.id, totalDurationMin=total_duration_min, keyPoints=key_points
+        )
 
-    return LectureOutline(
-        lectureId=lecture.id, totalDurationMin=total_duration_min, keyPoints=key_points
-    )
+    return call_with_retry(attempt)
