@@ -22,6 +22,24 @@ const EMPTY_PROFILE = {
   section: '',
 }
 
+function refsToList(text) {
+  return text
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+}
+
+async function parseErrorOrThrow(resp) {
+  if (resp.status === 401) {
+    window.location.href = '/auth/login'
+    throw new Error('redirecting to login')
+  }
+  if (!resp.ok) {
+    const body = await resp.json().catch(() => ({}))
+    throw new Error(body.detail || `เกิดข้อผิดพลาด (${resp.status})`)
+  }
+}
+
 function InstructorForm({ onCreated }) {
   const [profile, setProfile] = useState(EMPTY_PROFILE)
   const [submitting, setSubmitting] = useState(false)
@@ -42,16 +60,9 @@ function InstructorForm({ onCreated }) {
         body: JSON.stringify(profile),
         credentials: 'include',
       })
-      if (resp.status === 401) {
-        window.location.href = '/auth/login'
-        return
-      }
-      if (!resp.ok) {
-        const body = await resp.json().catch(() => ({}))
-        throw new Error(body.detail || `เกิดข้อผิดพลาด (${resp.status})`)
-      }
+      await parseErrorOrThrow(resp)
       const data = await resp.json()
-      onCreated(data.sessionId, profile)
+      onCreated(data.sessionId)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -113,11 +124,261 @@ function InstructorForm({ onCreated }) {
   )
 }
 
+function UploadForm({ sessionId, onExtracted }) {
+  const [specFile, setSpecFile] = useState(null)
+  const [slidesFile, setSlidesFile] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    if (!specFile) return
+    setSubmitting(true)
+    setError('')
+    try {
+      const formData = new FormData()
+      formData.append('sid', sessionId)
+      formData.append('spec', specFile)
+      if (slidesFile) formData.append('slides', slidesFile)
+
+      const resp = await fetch('/api/extract', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      })
+      await parseErrorOrThrow(resp)
+      const course = await resp.json()
+      onExtracted(course)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <form className="upload-form" onSubmit={handleSubmit}>
+      <h2>อัปโหลดเอกสาร มคอ-3</h2>
+      <p className="hint">
+        มคอ-3 (หรือ Course Specification) เป็นไฟล์เดียวที่จำเป็น — สไลด์ประกอบการสอนเป็นตัวเลือกเสริม
+      </p>
+
+      <label>
+        มคอ-3 (จำเป็น)
+        <input
+          type="file"
+          accept=".docx,.pptx"
+          required
+          onChange={(e) => setSpecFile(e.target.files[0] || null)}
+        />
+      </label>
+      <label>
+        สไลด์ประกอบการสอน (ไม่บังคับ)
+        <input
+          type="file"
+          accept=".docx,.pptx"
+          onChange={(e) => setSlidesFile(e.target.files[0] || null)}
+        />
+      </label>
+
+      {error && <p className="form-error">{error}</p>}
+
+      <button type="submit" disabled={submitting || !specFile}>
+        {submitting ? 'กำลังประมวลผล…' : 'แยกข้อมูลรายวิชา'}
+      </button>
+    </form>
+  )
+}
+
+function CorrectionScreen({ sessionId, initialCourse, onLectureChosen }) {
+  const [course, setCourse] = useState(initialCourse)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [error, setError] = useState('')
+
+  function updateField(field, value) {
+    setCourse({ ...course, [field]: value })
+    setSaved(false)
+  }
+
+  function updateListItem(listName, index, field, value) {
+    const list = course[listName].slice()
+    list[index] = { ...list[index], [field]: value }
+    setCourse({ ...course, [listName]: list })
+    setSaved(false)
+  }
+
+  function updateLectureTopic(index, value) {
+    const list = course.lectures.slice()
+    list[index] = { ...list[index], topic: value, name: value }
+    setCourse({ ...course, lectures: list })
+    setSaved(false)
+  }
+
+  function addListItem(listName, empty) {
+    setCourse({ ...course, [listName]: [...course[listName], empty] })
+    setSaved(false)
+  }
+
+  function removeListItem(listName, index) {
+    setCourse({ ...course, [listName]: course[listName].filter((_, i) => i !== index) })
+    setSaved(false)
+  }
+
+  async function handleSave() {
+    setSaving(true)
+    setError('')
+    try {
+      const resp = await fetch(`/api/course/${sessionId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(course),
+        credentials: 'include',
+      })
+      await parseErrorOrThrow(resp)
+      const data = await resp.json()
+      setCourse(data)
+      setSaved(true)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="correction-screen">
+      <h2>ตรวจสอบและแก้ไขข้อมูลรายวิชา</h2>
+      <p className="hint">ข้อมูลที่ดึงมาเป็นแบบร่าง — กรุณาตรวจสอบและแก้ไขก่อนสร้างแผนการสอน</p>
+
+      <label>
+        รหัสวิชา
+        <input value={course.courseCode} onChange={(e) => updateField('courseCode', e.target.value)} />
+      </label>
+      <label>
+        ชื่อวิชา
+        <input value={course.courseName} onChange={(e) => updateField('courseName', e.target.value)} />
+      </label>
+
+      <h3>PLO</h3>
+      {course.PLOs.map((plo, i) => (
+        <div className="row" key={i}>
+          <input
+            placeholder="id"
+            className="col-id"
+            value={plo.id}
+            onChange={(e) => updateListItem('PLOs', i, 'id', e.target.value)}
+          />
+          <input
+            placeholder="ข้อความ"
+            value={plo.text}
+            onChange={(e) => updateListItem('PLOs', i, 'text', e.target.value)}
+          />
+          <button type="button" onClick={() => removeListItem('PLOs', i)}>
+            ลบ
+          </button>
+        </div>
+      ))}
+      <button type="button" onClick={() => addListItem('PLOs', { id: '', text: '' })}>
+        + เพิ่ม PLO
+      </button>
+
+      <h3>CLO</h3>
+      {course.CLOs.map((clo, i) => (
+        <div className="row" key={i}>
+          <input
+            placeholder="id"
+            className="col-id"
+            value={clo.id}
+            onChange={(e) => updateListItem('CLOs', i, 'id', e.target.value)}
+          />
+          <input
+            placeholder="ข้อความ"
+            value={clo.text}
+            onChange={(e) => updateListItem('CLOs', i, 'text', e.target.value)}
+          />
+          <input
+            placeholder="PLO ที่เกี่ยวข้อง (คั่นด้วย ,)"
+            className="col-refs"
+            value={clo.ploRefs.join(', ')}
+            onChange={(e) => updateListItem('CLOs', i, 'ploRefs', refsToList(e.target.value))}
+          />
+          <button type="button" onClick={() => removeListItem('CLOs', i)}>
+            ลบ
+          </button>
+        </div>
+      ))}
+      <button type="button" onClick={() => addListItem('CLOs', { id: '', text: '', ploRefs: [] })}>
+        + เพิ่ม CLO
+      </button>
+
+      <h3>หัวข้อบรรยาย (เลือก 1 หัวข้อเพื่อสร้างแผนการสอน)</h3>
+      {course.lectures.map((lec, i) => (
+        <div className="row lecture-row" key={i}>
+          <input
+            placeholder="สัปดาห์"
+            className="col-week"
+            value={lec.week}
+            onChange={(e) => updateListItem('lectures', i, 'week', e.target.value)}
+          />
+          <input
+            placeholder="หัวข้อ"
+            value={lec.topic}
+            onChange={(e) => updateLectureTopic(i, e.target.value)}
+          />
+          <input
+            type="number"
+            placeholder="นาที"
+            className="col-minutes"
+            value={lec.durationMin ?? ''}
+            onChange={(e) =>
+              updateListItem('lectures', i, 'durationMin', e.target.value ? Number(e.target.value) : null)
+            }
+          />
+          <input
+            placeholder="CLO (คั่นด้วย ,)"
+            className="col-refs"
+            value={lec.cloRefs.join(', ')}
+            onChange={(e) => updateListItem('lectures', i, 'cloRefs', refsToList(e.target.value))}
+          />
+          <button type="button" onClick={() => removeListItem('lectures', i)}>
+            ลบ
+          </button>
+          <button type="button" className="choose-button" onClick={() => onLectureChosen(lec)} disabled={!saved}>
+            เลือก
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={() =>
+          addListItem('lectures', {
+            id: String(course.lectures.length + 1),
+            week: '',
+            topic: '',
+            name: '',
+            durationMin: null,
+            cloRefs: [],
+          })
+        }
+      >
+        + เพิ่มหัวข้อ
+      </button>
+
+      {error && <p className="form-error">{error}</p>}
+      <button type="button" className="save-button" onClick={handleSave} disabled={saving}>
+        {saving ? 'กำลังบันทึก…' : 'บันทึกการแก้ไข'}
+      </button>
+      {saved && <p className="save-confirm">บันทึกแล้ว — กดปุ่ม "เลือก" ที่หัวข้อด้านบนเพื่อสร้างแผนการสอน</p>}
+    </div>
+  )
+}
+
 function ComingSoon({ stageIndex }) {
   return (
     <div className="coming-soon">
       <h2>{STAGES[stageIndex]}</h2>
-      <p>ขั้นตอนนี้ยังอยู่ระหว่างการพัฒนา (M7-M10)</p>
+      <p>ขั้นตอนนี้ยังอยู่ระหว่างการพัฒนา</p>
     </div>
   )
 }
@@ -125,10 +386,22 @@ function ComingSoon({ stageIndex }) {
 function App() {
   const [stage, setStage] = useState(0)
   const [sessionId, setSessionId] = useState(null)
+  const [course, setCourse] = useState(null)
+  const [selectedLecture, setSelectedLecture] = useState(null)
 
   function handleCreated(newSessionId) {
     setSessionId(newSessionId)
     setStage(1)
+  }
+
+  function handleExtracted(extractedCourse) {
+    setCourse(extractedCourse)
+    setStage(2)
+  }
+
+  function handleLectureChosen(lecture) {
+    setSelectedLecture(lecture)
+    setStage(3)
   }
 
   return (
@@ -146,9 +419,20 @@ function App() {
 
       <main>
         {stage === 0 && <InstructorForm onCreated={handleCreated} />}
-        {stage > 0 && (
+        {stage === 1 && <UploadForm sessionId={sessionId} onExtracted={handleExtracted} />}
+        {stage === 2 && course && (
+          <CorrectionScreen
+            sessionId={sessionId}
+            initialCourse={course}
+            onLectureChosen={handleLectureChosen}
+          />
+        )}
+        {stage >= 3 && (
           <>
-            <p className="session-id">Session: {sessionId}</p>
+            <p className="session-id">
+              Session: {sessionId}
+              {selectedLecture && ` · หัวข้อ: ${selectedLecture.topic}`}
+            </p>
             <ComingSoon stageIndex={stage} />
           </>
         )}

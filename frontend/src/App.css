@@ -1,5 +1,5 @@
 .wizard {
-  max-width: 640px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 2rem 1rem;
 }
@@ -81,4 +81,113 @@
   border-radius: 8px;
   padding: 2rem;
   text-align: center;
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.upload-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.upload-form button,
+.correction-screen > button,
+.save-button {
+  align-self: flex-start;
+  padding: 0.6rem 1.4rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.upload-form button:disabled,
+.save-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.correction-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.correction-screen > label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.correction-screen input {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.row .col-id {
+  flex: 0 0 4rem;
+}
+
+.row .col-week {
+  flex: 0 0 5rem;
+}
+
+.row .col-minutes {
+  flex: 0 0 4.5rem;
+}
+
+.row .col-refs {
+  flex: 0 0 9rem;
+}
+
+.row button {
+  flex: 0 0 auto;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.row .choose-button {
+  background: var(--accent);
+  color: white;
+  border: none;
+}
+
+.row .choose-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.save-confirm {
+  color: #1d7a4c;
+  font-size: 0.9rem;
 }
