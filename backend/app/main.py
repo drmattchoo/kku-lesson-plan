@@ -4,6 +4,7 @@ import zipfile
 from pathlib import Path
 from typing import Optional
 
+import openai
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -80,11 +81,18 @@ def _save_upload_to_tmp(upload: UploadFile) -> Path:
 
 def _run_llm_step(fn, error_message: str):
     """extract_course/generate_outline already retry once internally on bad JSON —
-    if it still fails after that, surface a clear client error instead of a raw 500."""
+    if it still fails after that, surface a clear client error instead of a raw 500.
+    openai.APIError (auth/quota/rate-limit/connection failures from the gateway
+    itself) is a different failure mode — call_with_retry's internal retry only
+    covers malformed JSON, so this is the only catch point for API-level errors.
+    Not retried here either: a daily-quota error won't be fixed by an immediate
+    retry, so surface it once with the real reason instead of burning another call."""
     try:
         return fn()
     except RETRYABLE_ERRORS:
         raise HTTPException(status_code=502, detail=error_message)
+    except openai.APIError as e:
+        raise HTTPException(status_code=502, detail=f"{error_message} ({e})")
 
 
 @app.get("/health")

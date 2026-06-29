@@ -11,8 +11,15 @@ oauth.register(
     client_secret=settings.google_client_secret,
     # Explicit endpoints (no discovery-doc fetch) so /auth/login never needs network —
     # keeps it testable offline and matches "mock the LLM/network in tests" convention.
+    # jwks_uri is required too: the "openid" scope makes Google return a signed
+    # id_token, and authlib verifies its signature against this key set on every real
+    # callback — without it, a REAL (non-mocked) login 500s with "Missing jwks_uri in
+    # metadata" (every test mocks authorize_access_token entirely, so this never
+    # surfaced until an actual login was attempted). Google's JWKS endpoint is stable
+    # and public, so this is a static value, not a discovery-doc fetch.
     authorize_url="https://accounts.google.com/o/oauth2/v2/auth",
     access_token_url="https://oauth2.googleapis.com/token",
+    jwks_uri="https://www.googleapis.com/oauth2/v3/certs",
     client_kwargs={"scope": "openid email profile"},
 )
 

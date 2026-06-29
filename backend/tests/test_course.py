@@ -103,6 +103,30 @@ def test_extract_surfaces_502_when_extraction_persistently_fails(monkeypatch, tm
     assert resp.status_code == 502
 
 
+def test_extract_surfaces_502_on_llm_gateway_api_error(monkeypatch, tmp_path):
+    # e.g. the gateway's per-key daily quota is exhausted — a real failure mode
+    # hit during manual testing, distinct from a malformed-JSON response, and NOT
+    # covered by RETRYABLE_ERRORS (json/pydantic errors only).
+    import httpx
+    import openai
+
+    client = _logged_in_client(monkeypatch, tmp_path)
+    sid = _create_session(client)
+
+    def always_quota_exhausted(text):
+        request = httpx.Request("POST", "https://gen.ai.kku.ac.th/api/v1/chat/completions")
+        response = httpx.Response(401, request=request, json={"error": "This model reached daily limit."})
+        raise openai.AuthenticationError("daily limit", response=response, body=None)
+
+    monkeypatch.setattr(main_module, "extract_course", always_quota_exhausted)
+
+    with open(FIXTURES / "PT.docx", "rb") as f:
+        resp = client.post("/api/extract", data={"sid": sid}, files={"spec": ("PT.docx", f)})
+
+    assert resp.status_code == 502
+    assert "daily limit" in resp.json()["detail"]
+
+
 def test_extract_requires_login(tmp_path, monkeypatch):
     monkeypatch.setattr(session_store, "SESSIONS_DIR", tmp_path)
     anon_client = TestClient(app)
