@@ -4,8 +4,8 @@ Read this first each session, then run the test suite. Update it as the LAST act
 of every session.
 
 ## Status
-Current session target: Phase 0-2 complete, Phase 3 started (M0-M5, M6 backend half)
-Last green commit: 46d586c — "M6 (backend half): POST /api/session — InstructorProfile -> sessionId, disk-backed JSON session store ✓"
+Current session target: Phase 0-2 complete, Phase 3 in progress (M0-M5, M6 backend half, M8)
+Last green commit: e875dba — "M8: outline service — lecture+CLOs (+optional slides/brief) -> LectureOutline, live-verified all 3 modes ✓"
 Tree state: ☑ green
 
 ## Your homework (do before opening Claude Code)
@@ -27,7 +27,7 @@ Tree state: ☑ green
 | 2 | M5  extraction service [reuse]   | ☑ | ☑ | app/extraction_service.py + app/schemas.py; GATE passed on real DT.docx (55 lectures, 4 CLOs, correctly 0 PLOs) and PT.docx (33 lectures, 3 CLOs) — see backend/extraction_proof/*.json |
 | 3 | M6  instructor form              | ◐ | ☑ | backend half only: POST /api/session + InstructorProfile schema + disk session store, all tested. The actual Stage-1 React form is still BLOCKED — no Node/npm on this machine |
 | 3 | M7  upload + correction screen   | ☐ | ☐ | the load-bearing gate for messy input |
-| 3 | M8  outline service              | ☐ | ☐ | |
+| 3 | M8  outline service              | ☑ | ☑ | app/outline_service.py; live-verified all 3 grounding modes against real DT.docx lectures (spec-alone + slides-grounded), durations sum exactly — see backend/outline_proof/*.json |
 | 3 | M9  outline editor               | ☐ | ☐ | |
 | 3 | M10 batch export                 | ☐ | ☐ | reuses M1 binder |
 | 4 | M11 hardening + deploy           | ☐ | ☐ | |
@@ -75,13 +75,24 @@ Tree state: ☑ green
 - POST /api/session deliberately has NO matching GET endpoint yet — not in CLAUDE.md's
   documented API surface for M6, so left out rather than added speculatively. M7's
   GET/PUT /api/course/{sid} will be the first read path into session data.
+- outline_service.generate_outline() recomputes totalDurationMin itself by summing the
+  returned keyPoints — it does NOT trust whatever total the model states, and does NOT
+  hard-fail if the sum drifts from the lecture's scheduled duration. "4-8 points
+  summing to durationMin" is a prompt instruction/target, not a validator; M9's "live
+  total" editor is where the instructor reconciles this, matching the M5 "best-effort,
+  never block" philosophy.
+- No /api/outline endpoint wired into main.py yet — M8 only built the core
+  generate_outline() service (the part with a real test/build-order rationale). Wiring
+  POST /api/outline needs M7's session["course"] (the corrected ExtractedCourse) to
+  exist first, so the route is deferred to when M7 lands, not built speculatively now.
 
 ## Open questions / blockers
 - No Node.js/npm on this machine — the frontend (M6's Stage-1 form, M7-M10) can be
-  scaffolded as files but not installed, run, or verified until Node is available.
+  scaffolded as files but not installed, run, or verified until Node is available. M8
+  (backend-only) and M11's non-frontend parts are the only remaining no-Node-required work.
 
 ## Next session should start by
-- Node/npm is the blocker for the rest of Phase 3 (M6's React form, M7 upload+correction
-  screen, M9 outline editor) — all need a working frontend dev environment. Until then,
-  the productive path is M8 (outline service: lectureId (+ optional slides/brief) ->
-  LectureOutline) — backend-only, no Node required, and the next item in build order.
+- Node/npm is now the hard blocker for everything left in Phase 3 (M6's React form, M7
+  upload+correction screen, M9 outline editor) and M10 (batch export needs M7+M9
+  wired). Get Node installed, or continue with whatever non-frontend hardening from
+  M11 doesn't depend on the UI (e.g. retry-once on bad LLM JSON for M5/M8).
