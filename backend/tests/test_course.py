@@ -86,6 +86,23 @@ def test_extract_stores_slides_text_when_provided(monkeypatch, tmp_path):
     assert "Autonomic Nervous System" in stored["slidesText"]
 
 
+def test_extract_surfaces_502_when_extraction_persistently_fails(monkeypatch, tmp_path):
+    from pydantic import ValidationError
+
+    client = _logged_in_client(monkeypatch, tmp_path)
+    sid = _create_session(client)
+
+    def always_broken(text):
+        raise ValidationError.from_exception_data("ExtractedCourse", [])
+
+    monkeypatch.setattr(main_module, "extract_course", always_broken)
+
+    with open(FIXTURES / "PT.docx", "rb") as f:
+        resp = client.post("/api/extract", data={"sid": sid}, files={"spec": ("PT.docx", f)})
+
+    assert resp.status_code == 502
+
+
 def test_extract_requires_login(tmp_path, monkeypatch):
     monkeypatch.setattr(session_store, "SESSIONS_DIR", tmp_path)
     anon_client = TestClient(app)

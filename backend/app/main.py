@@ -15,6 +15,7 @@ from app.extraction_service import extract_course
 from app.lesson_plan_assembler import build_render_context
 from app.outline_service import generate_outline
 from app.rate_limit import enforce_rate_limit
+from app.retry import RETRYABLE_ERRORS
 from app.schemas import (
     CLO,
     BatchExportRequest,
@@ -50,6 +51,15 @@ def _save_upload_to_tmp(upload: UploadFile) -> Path:
     return Path(tmp.name)
 
 
+def _run_llm_step(fn, error_message: str):
+    """extract_course/generate_outline already retry once internally on bad JSON —
+    if it still fails after that, surface a clear client error instead of a raw 500."""
+    try:
+        return fn()
+    except RETRYABLE_ERRORS:
+        raise HTTPException(status_code=502, detail=error_message)
+
+
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok", "active_model": settings.active_model}
@@ -81,7 +91,10 @@ def extract(
     finally:
         spec_path.unlink(missing_ok=True)
 
-    course = extract_course(spec_text)
+    course = _run_llm_step(
+        lambda: extract_course(spec_text),
+        "การประมวลผล มคอ-3 ล้มเหลว กรุณาลองใหม่อีกครั้ง",
+    )
     session["course"] = course.model_dump()
 
     if slides is not None and slides.filename:
@@ -129,7 +142,10 @@ def create_outline(req: OutlineRequest, user: dict = Depends(require_kku_user)) 
     clos = [CLO.model_validate(c) for c in course["CLOs"]]
     grounding = OutlineGrounding(slidesText=session.get("slidesText"), brief=req.brief)
 
-    outline = generate_outline(lecture, clos, grounding=grounding)
+    outline = _run_llm_step(
+        lambda: generate_outline(lecture, clos, grounding=grounding),
+        "การสร้างแผนการสอนล้มเหลว กรุณาลองใหม่อีกครั้ง",
+    )
 
     outlines = session.setdefault("outlines", {})
     outlines[req.lectureId] = outline.model_dump()

@@ -90,6 +90,20 @@ def test_create_outline_404_when_lecture_not_in_course(monkeypatch, tmp_path):
     assert resp.status_code == 404
 
 
+def test_create_outline_surfaces_502_when_generation_persistently_fails(monkeypatch, tmp_path):
+    client = _logged_in_client(monkeypatch, tmp_path, email="outline-fail@kku.ac.th")
+    sid = _session_with_course(client)
+
+    def always_broken(lecture, clos, grounding=None):
+        raise KeyError("keyPoints")
+
+    monkeypatch.setattr(main_module, "generate_outline", always_broken)
+
+    resp = client.post("/api/outline", json={"sid": sid, "lectureId": "4"})
+
+    assert resp.status_code == 502
+
+
 def test_create_outline_requires_login(tmp_path, monkeypatch):
     monkeypatch.setattr(session_store, "SESSIONS_DIR", tmp_path)
     anon_client = TestClient(app)
