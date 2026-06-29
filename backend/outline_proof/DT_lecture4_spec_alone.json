@@ -1,0 +1,101 @@
+{
+  "lectureId": "4",
+  "totalDurationMin": 120,
+  "keyPoints": [
+    {
+      "seq": 1,
+      "title": "บทนำและวัตถุประสงค์การเรียนรู้",
+      "objective": "ระบุขอบเขตและวัตถุประสงค์ของการบรรยายสรีรวิทยาระบบประสาทได้",
+      "content": "1. ภาพรวมของระบบประสาท (CNS, PNS)\n2. ความสำคัญของระบบประสาทต่อ homeostasis\n3. วัตถุประสงค์การเรียนรู้ประจำบทและโครงสร้างการบรรยาย",
+      "durationMin": 5,
+      "teachingMethod": "lecture",
+      "cloRefs": [
+        "CLO1"
+      ],
+      "materials": "สไลด์บทนำ, แผนภาพภาพรวมระบบประสาท",
+      "assessment": "ถามนักศึกษาเกี่ยวกับความรู้พื้นฐานด้วยคำถามปากเปล่า"
+    },
+    {
+      "seq": 2,
+      "title": "โครงสร้างและชนิดของเซลล์ประสาท",
+      "objective": "อธิบายโครงสร้างและจำแนกชนิดของเซลล์ประสาท (neuron) และเซลล์เกลีย (glial cells) ได้",
+      "content": "1. ส่วนประกอบของ neuron: cell body, dendrite, axon, myelin sheath\n2. การจำแนก neuron ตามโครงสร้าง (unipolar, bipolar, multipolar)\n3. การจำแนก neuron ตามหน้าที่ (sensory, motor, interneuron)\n4. ชนิดและหน้าที่ของ glial cells (astrocyte, oligodendrocyte, microglia, Schwann cell)\n5. ความสัมพันธ์ระหว่าง neuron กับ glial cells ในการรักษา homeostasis",
+      "durationMin": 20,
+      "teachingMethod": "lecture",
+      "cloRefs": [
+        "CLO1"
+      ],
+      "materials": "สไลด์แผนภาพโครงสร้าง neuron, ภาพถ่ายจุลทรรศน์ glial cells, แผนภูมิเปรียบเทียบชนิดเซลล์",
+      "assessment": "ถาม-ตอบระหว่างบรรยาย เช่น ให้นักศึกษาระบุส่วนประกอบจากแผนภาพ"
+    },
+    {
+      "seq": 3,
+      "title": "Resting Membrane Potential",
+      "objective": "อธิบายกลไกการเกิด resting membrane potential และปัจจัยที่กำหนดค่าศักย์เยื่อหุ้มเซลล์ขณะพักได้",
+      "content": "1. การกระจายตัวของ ion (Na⁺, K⁺, Cl⁻, A⁻) ข้ามเยื่อหุ้มเซลล์\n2. บทบาทของ Na⁺/K⁺-ATPase pump\n3. Equilibrium potential และ Nernst equation (แนวคิดพื้นฐาน)\n4. Goldman equation และการกำหนดค่า resting membrane potential (~−70 mV)",
+      "durationMin": 20,
+      "teachingMethod": "lecture",
+      "cloRefs": [
+        "CLO1"
+      ],
+      "materials": "สไลด์แผนภาพการกระจาย ion, แผนภูมิ Na⁺/K⁺-ATPase, สมการ Nernst บนสไลด์",
+      "assessment": "ถาม-ตอบ: ให้นักศึกษาอธิบายว่าเหตุใดเยื่อหุ้มเซลล์จึงมีขั้วไฟฟ้าเป็นลบภายใน"
+    },
+    {
+      "seq": 4,
+      "title": "Action Potential: การเกิดและการนำกระแสประสาท",
+      "objective": "อธิบายกลไกการเกิด action potential และปัจจัยที่มีผลต่อความเร็วในการนำกระแสประสาทได้",
+      "content": "1. ขั้นตอนของ action potential: depolarization, repolarization, hyperpolarization (after-potential)\n2. บทบาทของ voltage-gated Na⁺ และ K⁺ channels\n3. All-or-none law และ threshold\n4. Refractory period (absolute และ relative)\n5. การนำกระแสประสาทแบบ continuous conduction vs. saltatory conduction และผลของ myelin",
+      "durationMin": 25,
+      "teachingMethod": "interactive",
+      "cloRefs": [
+        "CLO1",
+        "CLO3"
+      ],
+      "materials": "สไลด์กราฟ action potential, แผนภาพ saltatory conduction, คำถามกรณีศึกษา (เช่น ผลของ local anesthetic)",
+      "assessment": "ถาม-ตอบเชิงวิเคราะห์: ให้นักศึกษาอธิบายว่าเกิดอะไรขึ้นหาก myelin ถูกทำลาย (เชื่อมโยง CLO3)"
+    },
+    {
+      "seq": 5,
+      "title": "Synaptic Transmission",
+      "objective": "อธิบายกลไกการส่งผ่านสัญญาณที่ synapse ทั้งแบบ chemical และ electrical synapse ได้",
+      "content": "1. โครงสร้างของ synapse: presynaptic terminal, synaptic cleft, postsynaptic membrane\n2. กระบวนการหลั่ง neurotransmitter (exocytosis ที่กระตุ้นด้วย Ca²⁺)\n3. Excitatory (EPSP) และ Inhibitory postsynaptic potential (IPSP)\n4. Synaptic integration: temporal และ spatial summation\n5. Electrical synapse (gap junction) และการเปรียบเทียบกับ chemical synapse",
+      "durationMin": 20,
+      "teachingMethod": "lecture",
+      "cloRefs": [
+        "CLO1",
+        "CLO3"
+      ],
+      "materials": "สไลด์แผนภาพ synapse, วิดีโอสั้น animation synaptic transmission, ตารางเปรียบเทียบ EPSP/IPSP",
+      "assessment": "ถาม-ตอบ: นักศึกษาอธิบายว่า summation ทำให้เกิด action potential ได้อย่างไร"
+    },
+    {
+      "seq": 6,
+      "title": "Neurotransmitters และการประยุกต์ทางคลินิก",
+      "objective": "ประยุกต์ใช้ความรู้เรื่อง neurotransmitter ในการอธิบายกลไกของยาและความผิดปกติทางระบบประสาทได้",
+      "content": "1. ประเภทของ neurotransmitters: acetylcholine, catecholamines, amino acids (GABA, glutamate), neuropeptides\n2. ตัวรับ (receptors): ionotropic vs. metabotropic\n3. การสิ้นสุดการทำงานของ neurotransmitter (reuptake, enzymatic degradation, diffusion)\n4. ตัวอย่างทางคลินิก: ยา anticholinesterase, ยาต้านซึมเศร้า (SSRI), โรค Parkinson และ dopamine",
+      "durationMin": 20,
+      "teachingMethod": "interactive",
+      "cloRefs": [
+        "CLO1",
+        "CLO3"
+      ],
+      "materials": "สไลด์ตารางสรุป neurotransmitters, กรณีศึกษาสั้น (เช่น ผู้ป่วย myasthenia gravis), แผนภาพ receptor types",
+      "assessment": "กรณีศึกษา: ให้นักศึกษาวิเคราะห์และอภิปรายกลุ่มย่อยว่ายาออกฤทธิ์ผ่านกลไกใด"
+    },
+    {
+      "seq": 7,
+      "title": "สรุปและทดสอบหลังเรียน (Post-test)",
+      "objective": "สรุปหลักการสำคัญของสรีรวิทยาระบบประสาทและประเมินความเข้าใจหลังการเรียนรู้ได้",
+      "content": "1. สรุปภาพรวม: โครงสร้างเซลล์ → resting potential → action potential → synaptic transmission → neurotransmitters\n2. เชื่อมโยงบทบาทระบบประสาทต่อ homeostasis\n3. Post-test (คำถามปรนัย 5 ข้อ ครอบคลุมเนื้อหาทั้งบท)\n4. เปิดโอกาสซักถามและแนะนำแหล่งศึกษาเพิ่มเติม",
+      "durationMin": 10,
+      "teachingMethod": "quiz",
+      "cloRefs": [
+        "CLO1",
+        "CLO3"
+      ],
+      "materials": "สไลด์สรุป, แบบทดสอบ post-test (กระดาษหรือ online platform เช่น Kahoot/Google Form)",
+      "assessment": "Post-test ปรนัย 5 ข้อ วัดความเข้าใจหลังบรรยาย; เฉลยและอภิปรายคำตอบร่วมกัน"
+    }
+  ]
+}

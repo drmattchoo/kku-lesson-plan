@@ -44,3 +44,26 @@ class ExtractedCourse(BaseModel):
     PLOs: List[PLO] = []
     CLOs: List[CLO] = []
     lectures: List[Lecture] = []
+
+
+class OutlineGrounding(BaseModel):
+    slidesText: Optional[str] = None
+    brief: Optional[str] = None
+
+
+class KeyPoint(BaseModel):
+    seq: int
+    title: str
+    objective: str
+    content: str
+    durationMin: int
+    teachingMethod: str  # lecture | interactive | quiz
+    cloRefs: List[str] = []
+    materials: str = ""
+    assessment: str = ""
+
+
+class LectureOutline(BaseModel):
+    lectureId: str
+    totalDurationMin: int
+    keyPoints: List[KeyPoint]

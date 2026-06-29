@@ -1,0 +1,100 @@
+{
+  "lectureId": "11",
+  "totalDurationMin": 120,
+  "keyPoints": [
+    {
+      "seq": 1,
+      "title": "บทนำและวัตถุประสงค์การเรียนรู้",
+      "objective": "บอกหัวข้อหลักและวัตถุประสงค์ของการบรรยายระบบประสาทอัตโนวัติได้",
+      "content": "1. แนะนำภาพรวมของ ANS และความสำคัญต่อ homeostasis\n2. ชี้แจงวัตถุประสงค์การเรียนรู้ทั้ง 6 ข้อจาก slide\n3. แผนการบรรยาย 7 หัวข้อหลัก (course outline)\n4. ความเชื่อมโยงกับวิชาชีพด้านวิทยาศาสตร์สุขภาพ",
+      "durationMin": 5,
+      "teachingMethod": "lecture",
+      "cloRefs": [
+        "CLO1"
+      ],
+      "materials": "Slide 1-3, PowerPoint presentation",
+      "assessment": "ถาม-ตอบเบื้องต้นเพื่อสำรวจความรู้เดิมของนักศึกษา"
+    },
+    {
+      "seq": 2,
+      "title": "ภาพรวมและโครงสร้างของ ANS",
+      "objective": "อธิบายหน้าที่ โครงสร้างทั่วไป และการแบ่งส่วนของระบบประสาทอัตโนวัติได้",
+      "content": "1. หน้าที่ของ ANS: ควบคุม BP, GI motility, การขับปัสสาวะ, เหงื่อ, อุณหภูมิ, ตา\n2. ลำดับการควบคุมจาก CNS: spinal cord → brainstem → hypothalamus → limbic cortex\n3. วงจรพื้นฐาน: preganglionic neuron → autonomic ganglion → postganglionic neuron\n4. เปรียบเทียบ ANS กับ somatic nervous system\n5. การแบ่ง ANS: sympathetic, parasympathetic (และ enteric)",
+      "durationMin": 15,
+      "teachingMethod": "lecture",
+      "cloRefs": [
+        "CLO1"
+      ],
+      "materials": "Slide 4-9, แผนภาพวงจร ANS, ภาพเปรียบเทียบ ANS vs Somatic NS",
+      "assessment": "ถาม-ตอบ: นักศึกษาระบุความแตกต่างระหว่าง ANS กับ somatic NS"
+    },
+    {
+      "seq": 3,
+      "title": "Sympathetic และ Parasympathetic Nervous System",
+      "objective": "อธิบายกายวิภาคและเส้นทางของเส้นใยประสาท sympathetic และ parasympathetic ได้",
+      "content": "1. SNS: thoracolumbar outflow (T1-L2), paravertebral และ prevertebral ganglia, 4 เส้นทางของ preganglionic fibre\n2. Adrenal medulla: chromaffin cells เป็น modified postganglionic neurons, ปล่อย Epi 80% / NE 20% เข้ากระแสเลือด\n3. PNS: craniosacral outflow (CN III, VII, IX, X; S2-S3), terminal ganglia ใกล้อวัยวะเป้าหมาย\n4. เปรียบเทียบโครงสร้าง SNS vs PNS: ความยาว pre/postganglionic fibre, ตำแหน่ง ganglion\n5. Segmental outputs ของทั้ง SNS และ PNS",
+      "durationMin": 25,
+      "teachingMethod": "lecture",
+      "cloRefs": [
+        "CLO1"
+      ],
+      "materials": "Slide 10-22, แผนภาพ sympathetic chain, แผนภาพ craniosacral outflow, ตารางเปรียบเทียบ SNS vs PNS",
+      "assessment": "ถาม-ตอบ: นักศึกษาวาดเส้นทาง preganglionic fibre ของ SNS ทั้ง 4 เส้นทาง"
+    },
+    {
+      "seq": 4,
+      "title": "สารสื่อประสาทของ ANS",
+      "objective": "อธิบายกระบวนการสังเคราะห์ การหลั่ง และการสลาย ACh และ NE รวมถึงเป้าหมายของยาได้",
+      "content": "1. ACh: การสังเคราะห์ (Choline + Acetyl-CoA → ChAT → ACh), การสลายโดย AChE, การนำ choline กลับมาใช้\n2. NE: catecholamine synthesis pathway (Tyrosine → DOPA → DA → NE → Epi)\n3. การเก็บใน vesicle, การหลั่งแบบ Ca²⁺-dependent exocytosis\n4. การกำจัด NE: reuptake ผ่าน NET (50-80%), MAO, COMT\n5. เป้าหมายของยาในแต่ละขั้นตอนของ NE (drug modulation targets)",
+      "durationMin": 20,
+      "teachingMethod": "lecture",
+      "cloRefs": [
+        "CLO1",
+        "CLO3"
+      ],
+      "materials": "Slide 23-31, แผนภาพ cholinergic synapse, แผนภาพ catecholamine synthesis pathway, ตารางเปรียบเทียบ ACh vs NE",
+      "assessment": "ถาม-ตอบ: นักศึกษาเรียงลำดับขั้นตอนการสังเคราะห์ NE"
+    },
+    {
+      "seq": 5,
+      "title": "Receptors และการตอบสนองของอวัยวะ",
+      "objective": "บอกชนิดและหน้าที่ของตัวรับ muscarinic, nicotinic และ adrenergic รวมถึงการตอบสนองของอวัยวะสำคัญต่อการกระตุ้น ANS ได้",
+      "content": "1. Cholinergic receptors: muscarinic (M1-M3, GPCR) และ nicotinic (NN, NM, ligand-gated ion channel)\n2. Adrenergic receptors: α1, α2, β1, β2 — subtypes, second messenger, การกระจายตัว\n3. กลไกการออกฤทธิ์: ion channel change vs G-protein/second messenger cascade\n4. การตอบสนองของอวัยวะ: ตา (mydriasis/miosis), หัวใจ, หลอดเลือด, ปอด, GI, กระเพาะปัสสาวะ, ต่อมเหงื่อ\n5. Dual innervation, tonic activity และความสมดุล SNS/PNS ต่ออวัยวะต่าง ๆ",
+      "durationMin": 25,
+      "teachingMethod": "interactive",
+      "cloRefs": [
+        "CLO1",
+        "CLO3"
+      ],
+      "materials": "Slide 32-42 และ 48, ตารางสรุป autonomic effects on major organs, แผนภาพ receptor subtypes",
+      "assessment": "ถาม-ตอบแบบ interactive: กรณีตัวอย่าง เช่น เมื่อกระตุ้น β2 receptor จะเกิดผลอะไรกับหลอดลม"
+    },
+    {
+      "seq": 6,
+      "title": "ความสัมพันธ์ทางคลินิกและเภสัชวิทยาของ ANS",
+      "objective": "ประยุกต์ใช้ความรู้เรื่อง ANS ในการอธิบายภาวะผิดปกติทางคลินิกและกลไกการออกฤทธิ์ของยาที่เกี่ยวข้องได้",
+      "content": "1. Horner syndrome: สูญเสีย SNS ข้างเดียว → ptosis, miosis, anhidrosis; สาเหตุตาม 3-neuron pathway\n2. Phaeochromocytoma: catecholamine-secreting tumour, classic triad, การวินิจฉัย, การจัดการผ่าตัด 2 phases\n3. Sympathomimetics: direct (NE, Epi, phenylephrine, albuterol) vs indirect (ephedrine, amphetamine), selectivity\n4. Adrenergic blockers: α-blockers (phenoxybenzamine), β-blockers (propranolol vs metoprolol), ganglionic blockers\n5. Cholinergic drugs: parasympathomimetics (pilocarpine), anticholinesterases (neostigmine), antimuscarinics (atropine), toxidromes",
+      "durationMin": 20,
+      "teachingMethod": "interactive",
+      "cloRefs": [
+        "CLO3"
+      ],
+      "materials": "Slide 43-56, กรณีศึกษา Horner syndrome และ Phaeochromocytoma, ตารางยา sympathomimetics/blockers/cholinergic drugs",
+      "assessment": "กรณีศึกษา: นักศึกษาวิเคราะห์อาการของผู้ป่วย Horner syndrome และเลือกยาที่เหมาะสมในสถานการณ์จำลอง"
+    },
+    {
+      "seq": 7,
+      "title": "สรุปและทดสอบหลังเรียน",
+      "objective": "สรุปกลไกสำคัญของ ANS และวิเคราะห์ความสัมพันธ์ระหว่างโครงสร้าง สารสื่อประสาท ตัวรับ และการตอบสนองของอวัยวะได้",
+      "content": "1. ทบทวนแผนผังภาพรวม ANS: โครงสร้าง → สารสื่อประสาท → receptor → organ response\n2. Post-test: 5-10 ข้อ MCQ ครอบคลุมเนื้อหาทั้งหมด\n3. เฉลยและอภิปรายคำตอบที่นักศึกษาตอบผิดบ่อย\n4. แนะนำแหล่งอ่านเพิ่มเติม (Guyton, Sherwood, Vander)",
+      "durationMin": 10,
+      "teachingMethod": "quiz",
+      "cloRefs": [
+        "CLO1",
+        "CLO3"
+      ],
+      "materials": "Slide 57, แบบทดสอบ post-test (MCQ), Mind map สรุปเนื้อหา ANS",
+      "assessment": "Post-test 5-10 ข้อ MCQ; เฉลยพร้อมอภิปรายเพื่อเสริมความเข้าใจ"
+    }
+  ]
+}
