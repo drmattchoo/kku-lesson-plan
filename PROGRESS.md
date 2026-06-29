@@ -4,8 +4,8 @@ Read this first each session, then run the test suite. Update it as the LAST act
 of every session.
 
 ## Status
-Current session target: Phase 0 + Phase 1 + start of Phase 2 (M0, M1, M2, M3)
-Last green commit: c66552c — "M3: LLM provider interface via KKU gateway (OpenAI-compatible, model-switched) ✓"
+Current session target: Phase 0 + Phase 1 + Phase 2 in progress (M0-M4)
+Last green commit: 9672a55 — "M4: document loaders — pptx/docx to structured text, dedupes merged table cells ✓"
 Tree state: ☑ green
 
 ## Your homework (do before opening Claude Code)
@@ -23,7 +23,7 @@ Tree state: ☑ green
 | 0 | M1  template binder + render proof [reuse] | ☑ | ☑ | GATE passed: human verified render_proof.docx vs KKU standard; objective/content tied to CLOs, ผลการเรียนรู้ column computed as PLO/CLO pairs |
 | 1 | M2  Google sign-in (@kku.ac.th)  | ☑ | ☑ | Authlib + Starlette SessionMiddleware; /api/* guarded via require_kku_user; tests mock Google token, no network in test suite |
 | 2 | M3  LLM provider interface       | ☑ | ☑ | app/llm.py — single OpenAI-SDK client against KKU gateway, model-switched; live-verified against claude-sonnet-4.6 + gpt-5.5 |
-| 2 | M4  document loaders [reuse]     | ☐ | ☐ | |
+| 2 | M4  document loaders [reuse]     | ☑ | ☑ | app/document_loaders.py; tested against real curriculum/ docx + the real pptx, not synthetic fixtures |
 | 2 | M5  extraction service [reuse]   | ☐ | ☐ | best-effort; output is a DRAFT |
 | 3 | M6  instructor form              | ☐ | ☐ | needs Node/npm — not installed on this machine yet |
 | 3 | M7  upload + correction screen   | ☐ | ☐ | the load-bearing gate for messy input |
@@ -48,6 +48,16 @@ Tree state: ☑ green
   gateway that routes to Claude/GPT/others by `model` name. app/llm.py is a single
   `openai` SDK client pointed at that base_url; "switch by config" just changes the
   model string (LLM_PROVIDER=claude|gpt in .env), not the client class.
+- docx loader walks the body in document order (paragraphs interleaved with tables),
+  not "all paragraphs then all tables" — มคอ tables are meaningless out of context.
+- Horizontally-merged table cells repeat the same cell object/text N times in
+  `row.cells` (python-docx quirk, confirmed against the real PT.docx schedule table)
+  → dedupe consecutive identical cells per row before joining, or every merged header
+  cell prints 2-8x. PDF (PS.pdf) is explicitly NOT supported by M4 — out of CLAUDE.md's
+  documented scope (pptx/docx only); flag if a real มคอ shows up as PDF.
+- Real fixtures used for M4 tests instead of synthetic ones (tests/fixtures/PT.docx,
+  Autonomic_Nervous_System.pptx) — fixtures live at repo-root tests/fixtures/, not
+  backend/tests/fixtures/ (only dummy_lesson_plan_context.py lives under backend/).
 
 ## Open questions / blockers
 - No Node.js/npm on this machine — frontend (M6+) can be scaffolded as files but not
@@ -56,6 +66,7 @@ Tree state: ☑ green
   enough for M5 extraction testing, or if the user has other messier real มคอ-3 files.
 
 ## Next session should start by
-- Building M4 (document loaders: pptx/docx -> structured text) and M5 (extraction
-  service -> ExtractedCourse DRAFT) — both backend-only, no Node required. M5 needs the
-  real messy มคอ-3 specs for its human gate.
+- Building M5 (extraction service -> ExtractedCourse DRAFT, using app.llm + the
+  document_loaders text). Backend-only, no Node required. Has a human gate: run on
+  the real curriculum/ specs (or messier real มคอ-3 files if the user has them) and
+  confirm wrong rows are fixable in under a minute.
