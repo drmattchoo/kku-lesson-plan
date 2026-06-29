@@ -28,6 +28,10 @@ Some parsing / CLO-mapping / template logic can be lifted from the existing
 - Frontend: React + Vite — a wizard.
 - Docs: python-pptx, python-docx (parse) · docxtpl (render).
 - LLM: provider interface, GPT-5.5 + Claude Sonnet behind it, switch by config.
+  In practice both run through ONE university gateway (gen.ai.kku.ac.th/api/v1) that
+  speaks the standard OpenAI chat-completions shape and routes by `model` name — so
+  `app/llm.py` is a single OpenAI-SDK client pointed at that base_url, not two separate
+  provider implementations. Per-user API key, fill in `.env` (`LLM_API_KEY`).
 - Auth: Google sign-in, restricted to @kku.ac.th. No payment.
 - State: one JSON blob per session (disk or SQLite). API key + Google secret server-side only.
 

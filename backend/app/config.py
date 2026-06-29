@@ -12,17 +12,17 @@ class Settings(BaseSettings):
     google_client_secret: str = ""
     allowed_email_domain: str = "kku.ac.th"
 
-    llm_provider: str = "anthropic"
-    anthropic_api_key: str = ""
-    anthropic_model: str = "claude-sonnet-4-6"
-    openai_api_key: str = ""
-    openai_model: str = "gpt-5.5"
+    llm_base_url: str = "https://gen.ai.kku.ac.th/api/v1"
+    llm_api_key: str = ""
+    llm_provider: str = "claude"
+    llm_model_claude: str = "claude-sonnet-4.6"
+    llm_model_gpt: str = "gpt-5.5"
 
     session_secret: str = "change-me-dev-only"
 
     @property
     def active_model(self) -> str:
-        return self.anthropic_model if self.llm_provider == "anthropic" else self.openai_model
+        return self.llm_model_claude if self.llm_provider == "claude" else self.llm_model_gpt
 
 
 settings = Settings()
