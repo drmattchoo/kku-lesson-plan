@@ -5,6 +5,19 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
+class InstructorProfile(BaseModel):
+    name: str
+    title: str
+    department: str
+    faculty: str
+    university: str = "มหาวิทยาลัยขอนแก่น"
+    courseCode: str
+    courseName: str
+    academicYear: str
+    semester: str
+    section: str = ""
+
+
 class PLO(BaseModel):
     id: str
     text: str
