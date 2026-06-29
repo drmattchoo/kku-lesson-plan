@@ -5,12 +5,14 @@ from pathlib import Path
 from typing import Optional
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.auth import require_kku_user, router as auth_router
-from app.config import REPO_ROOT, settings
+from app.config import REPO_ROOT, parse_csv_env, settings
 from app.document_loaders import load_document_text
 from app.extraction_service import extract_course
 from app.lesson_plan_assembler import build_render_context
@@ -33,8 +35,32 @@ from app.template_binder import render_lesson_plan
 from tests.fixtures.dummy_lesson_plan_context import DUMMY_CONTEXT
 
 app = FastAPI(title="แผนการสอน Generator")
-app.add_middleware(SessionMiddleware, secret_key=settings.session_secret, same_site="lax")
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.session_secret,
+    same_site="lax",
+    https_only=settings.session_https_only,
+)
 app.include_router(auth_router)
+
+# Both middlewares below are env-driven and OFF by default (matching local dev/test
+# behavior exactly) — set CORS_ORIGINS / ALLOWED_HOSTS for a real host. Added after
+# SessionMiddleware so they wrap it (outermost middleware runs first per Starlette's
+# add-order-reverses-execution-order semantics) — host/origin gets checked before
+# any session-cookie handling.
+_cors_origins = parse_csv_env(settings.cors_origins)
+if _cors_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=_cors_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+_allowed_hosts = parse_csv_env(settings.allowed_hosts)
+if _allowed_hosts and _allowed_hosts != ["*"]:
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=_allowed_hosts)
 
 
 def _owned_session(sid: str, user: dict) -> dict:

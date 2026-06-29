@@ -1,4 +1,5 @@
 from unittest.mock import AsyncMock
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 from fastapi.testclient import TestClient
@@ -7,6 +8,10 @@ import app.auth as auth_module
 from app.main import app
 
 client = TestClient(app)
+
+
+def _redirect_uri_param(location: str) -> str:
+    return parse_qs(urlparse(location).query)["redirect_uri"][0]
 
 
 def _mock_google_token(monkeypatch, *, email: str, email_verified: bool = True, name: str = "Test User"):
@@ -22,6 +27,34 @@ def test_login_redirects_to_google_without_hitting_network():
     resp = client.get("/auth/login", follow_redirects=False)
     assert resp.status_code in (302, 303, 307)
     assert "accounts.google.com" in resp.headers["location"]
+
+
+def test_login_redirect_uri_derived_from_request_when_base_url_unset():
+    assert auth_module.settings.base_url == ""  # default in this test env
+
+    resp = client.get("/auth/login", follow_redirects=False)
+
+    redirect_uri = _redirect_uri_param(resp.headers["location"])
+    assert redirect_uri.endswith("/auth/callback")
+    assert redirect_uri.startswith("http://")  # TestClient's default scheme
+
+
+def test_login_redirect_uri_uses_base_url_when_configured(monkeypatch):
+    monkeypatch.setattr(auth_module.settings, "base_url", "https://lesson-plan-staging.onrender.com")
+
+    resp = client.get("/auth/login", follow_redirects=False)
+
+    redirect_uri = _redirect_uri_param(resp.headers["location"])
+    assert redirect_uri == "https://lesson-plan-staging.onrender.com/auth/callback"
+
+
+def test_login_redirect_uri_strips_trailing_slash_from_base_url(monkeypatch):
+    monkeypatch.setattr(auth_module.settings, "base_url", "https://lesson-plan-staging.onrender.com/")
+
+    resp = client.get("/auth/login", follow_redirects=False)
+
+    redirect_uri = _redirect_uri_param(resp.headers["location"])
+    assert redirect_uri == "https://lesson-plan-staging.onrender.com/auth/callback"
 
 
 def test_callback_accepts_kku_email_and_sets_session(monkeypatch):

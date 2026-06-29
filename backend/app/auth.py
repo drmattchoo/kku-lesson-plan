@@ -25,7 +25,14 @@ def _is_allowed(email: str) -> bool:
 
 @router.get("/login")
 async def login(request: Request):
-    redirect_uri = request.url_for("auth_callback")
+    if settings.base_url:
+        # explicit, env-driven — never trust the incoming request's scheme here,
+        # since most PaaS reverse proxies (Render/Railway/Fly) terminate TLS at the
+        # edge and forward plain http, which would otherwise produce a callback URL
+        # that doesn't match what's registered in the Google console.
+        redirect_uri = f"{settings.base_url.rstrip('/')}/auth/callback"
+    else:
+        redirect_uri = request.url_for("auth_callback")
     return await oauth.google.authorize_redirect(
         request, redirect_uri, hd=settings.allowed_email_domain
     )

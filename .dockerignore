@@ -1,0 +1,22 @@
+.env
+.git/
+.gitignore
+*.pyc
+__pycache__/
+backend/.venv/
+backend/.pytest_cache/
+backend/extraction_proof/
+backend/outline_proof/
+frontend/node_modules/
+frontend/dist/
+sessions/
+.DS_Store
+docs/
+# repo-root proof artifacts only — NOT templates/kku_lesson_plan.docx, which the
+# app needs at runtime (loaded by app/template_binder.py).
+/render_proof.docx
+/full_pipeline_proof.docx
+/template/
+/tests/
+/*.html
+build-loop.sh
