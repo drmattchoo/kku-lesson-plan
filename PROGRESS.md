@@ -4,8 +4,8 @@ Read this first each session, then run the test suite. Update it as the LAST act
 of every session.
 
 ## Status
-Current session target: Phase 0-2 complete, Phase 3 in progress (M0-M5, M6 backend half, M8)
-Last green commit: e875dba — "M8: outline service — lecture+CLOs (+optional slides/brief) -> LectureOutline, live-verified all 3 modes ✓"
+Current session target: Phase 0-2 complete, Phase 3 in progress (M0-M6, M8)
+Last green commit: e0dce47 — "M6: instructor form (Stage 1) — React+Vite wizard shell, POST /api/session, live-verified in browser ✓"
 Tree state: ☑ green
 
 ## Your homework (do before opening Claude Code)
@@ -25,7 +25,7 @@ Tree state: ☑ green
 | 2 | M3  LLM provider interface       | ☑ | ☑ | app/llm.py — single OpenAI-SDK client against KKU gateway, model-switched; live-verified against claude-sonnet-4.6 + gpt-5.5 |
 | 2 | M4  document loaders [reuse]     | ☑ | ☑ | app/document_loaders.py; tested against real curriculum/ docx + the real pptx, not synthetic fixtures |
 | 2 | M5  extraction service [reuse]   | ☑ | ☑ | app/extraction_service.py + app/schemas.py; GATE passed on real DT.docx (55 lectures, 4 CLOs, correctly 0 PLOs) and PT.docx (33 lectures, 3 CLOs) — see backend/extraction_proof/*.json |
-| 3 | M6  instructor form              | ◐ | ☑ | backend half only: POST /api/session + InstructorProfile schema + disk session store, all tested. The actual Stage-1 React form is still BLOCKED — no Node/npm on this machine |
+| 3 | M6  instructor form              | ☑ | ☑ | frontend/ scaffolded (React+Vite, Node found via nvm); Stage-1 form live-verified in real Chrome — filled all 10 fields, submitted, correctly redirected to the real Google consent screen with hd=kku.ac.th |
 | 3 | M7  upload + correction screen   | ☐ | ☐ | the load-bearing gate for messy input |
 | 3 | M8  outline service              | ☑ | ☑ | app/outline_service.py; live-verified all 3 grounding modes against real DT.docx lectures (spec-alone + slides-grounded), durations sum exactly — see backend/outline_proof/*.json |
 | 3 | M9  outline editor               | ☐ | ☐ | |
@@ -86,13 +86,28 @@ Tree state: ☑ green
   POST /api/outline needs M7's session["course"] (the corrected ExtractedCourse) to
   exist first, so the route is deferred to when M7 lands, not built speculatively now.
 
+- Node.js/npm IS installed on this machine via nvm (`~/.nvm`, node v24.18.0, npm
+  11.16.0) — it's just not on PATH by default in a fresh shell. Always run
+  `export NVM_DIR="$HOME/.nvm"; source "$NVM_DIR/nvm.sh"` before any node/npm command.
+  (Earlier sessions wrongly concluded Node wasn't installed at all — it was just not
+  sourced. Always re-check with nvm before assuming it's missing.)
+- frontend/ is a Vite+React scaffold (`npm create vite@latest -- --template react`),
+  dev proxy in vite.config.js forwards /api and /auth to http://localhost:8000 so the
+  two dev servers (vite on 5173, uvicorn on 8000) work together locally without CORS
+  config. node_modules/ is gitignored; package-lock.json is committed.
+- Browser verification used the Claude-in-Chrome MCP (navigate/read_page/form_input/
+  computer click), not the Preview MCP — preview_start needs `.claude/launch.json`
+  relative to the session's registered project root (webapp_kk1), but this app's
+  actual code lives in the sibling dir `webapp kk2`, so Claude-in-Chrome against a
+  manually-started dev server (plain `npm run dev` / `uvicorn` in the background) was
+  simpler. Did NOT attempt actual Google login (that needs real credentials and is a
+  prohibited action) — confirmed the redirect URL/params are correct and stopped there;
+  post-login session creation is already covered by M6's mocked-auth test suite.
+
 ## Open questions / blockers
-- No Node.js/npm on this machine — the frontend (M6's Stage-1 form, M7-M10) can be
-  scaffolded as files but not installed, run, or verified until Node is available. M8
-  (backend-only) and M11's non-frontend parts are the only remaining no-Node-required work.
+- (none blocking — Node is available; M7/M9/M10 frontend work can proceed normally)
 
 ## Next session should start by
-- Node/npm is now the hard blocker for everything left in Phase 3 (M6's React form, M7
-  upload+correction screen, M9 outline editor) and M10 (batch export needs M7+M9
-  wired). Get Node installed, or continue with whatever non-frontend hardening from
-  M11 doesn't depend on the UI (e.g. retry-once on bad LLM JSON for M5/M8).
+- M7 (upload + correction screen) is next in build order — the load-bearing gate for
+  messy input. Needs multipart upload UI + the GET/PUT /api/course/{sid} backend
+  endpoints (not yet built) wired to extraction_service (M5) and session_store (M6).
