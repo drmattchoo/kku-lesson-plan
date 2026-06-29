@@ -4,17 +4,21 @@ Read this first each session, then run the test suite. Update it as the LAST act
 of every session.
 
 ## Status
-**ALL MODULES BUILT (M0-M11).** Tree state: ☑ green (67 backend tests, frontend
-build+lint clean). Last green commit: b70e7b9 — "M11: single-process deploy (serve
-built frontend from FastAPI), Dockerfile, deploy doc — actual hosting decision left
-to user per project plan ✓"
+**ALL MODULES BUILT (M0-M11) + staging-prep done.** Tree state: ☑ green (74 backend
+tests, frontend build+lint clean). Last green commit: 521a7bd — "staging: Dockerfile
+respects $PORT (Render/Railway/Heroku-style PaaS convention), add docs/STAGING.md
+runbook for Render".
 
 A full end-to-end live run (real DT.docx extraction → instructor correction → real
 outline generation with a brief → manual edit → single export → second outline →
 batch export to .zip) passed cleanly with NO mocking anywhere in the chain except
-auth (Google login can't be scripted without real credentials). See "Decisions made"
-below for what's still genuinely outstanding (deployment itself, a few UX rough
-edges) vs. what's done.
+auth (Google login can't be scripted without real credentials).
+
+**Staging deploy itself is NOT done** — that's explicitly the user's step (host
+signup, clicking deploy, adding the Google OAuth redirect URI, the real-login smoke
+test). What Claude Code did: a production-config sanity pass (see "Decisions made"
+below for the 3 localhost-only bugs found and fixed) and `docs/STAGING.md`, a Render
+runbook with exact env vars and a 5-step smoke test, ready for the user to execute.
 
 ## Your homework (do before opening Claude Code) — all done
 - [x] One clean official KKU lesson-plan .docx + written list of every field it needs
@@ -116,6 +120,47 @@ edges) vs. what's done.
   or hand to KKU IT. Docker itself isn't installed on this machine, so the Dockerfile
   is carefully path-checked against the real repo structure but NOT build-tested.
 
+### Staging-prep pass (2026-06-29) — 3 localhost-only bugs found and fixed
+A dedicated pass for "things that work on localhost but break on a real HTTPS host",
+ahead of an actual throwaway staging deploy. All three confirmed via live env-var
+checks (booting fresh uvicorn processes with real env vars set, not just unit tests —
+these are module-import-time middleware/settings, so TestClient monkeypatching
+doesn't exercise them):
+1. **OAuth redirect_uri was request-derived** (`request.url_for("auth_callback")`),
+   which sees plain `http://` behind most PaaS reverse proxies (Render/Railway/Fly
+   terminate TLS at the edge) — would produce a callback URL that doesn't match what's
+   registered in the Google console. Fixed: `BASE_URL` env var explicitly builds the
+   redirect_uri in `app/auth.py`'s `login()`; empty (default) still falls back to
+   request-derived for local dev. Live-verified the redirect_uri param via both paths.
+2. **Session cookie had no Secure flag control** — `SessionMiddleware`'s
+   `https_only` defaulted to `False` unconditionally. Fixed: `SESSION_HTTPS_ONLY` env
+   var (default `false`, matches local http dev). Live-verified: `Secure` attribute
+   present on Set-Cookie only when the env var is `true`.
+3. **No Host-header or CORS protection at all.** Added `TrustedHostMiddleware`
+   (`ALLOWED_HOSTS` env var, default `*` = off) and `CORSMiddleware`
+   (`CORS_ORIGINS` env var, default empty = off) — both OFF by default so local
+   dev/test behavior is byte-identical to before. Live-verified: a forged Host header
+   gets a 400 when `ALLOWED_HOSTS` is set to the real domain; `Access-Control-Allow-
+   Origin` only appears for an explicitly-allowed `CORS_ORIGINS` value.
+- `parse_csv_env` extracted to `app/config.py` (used by both the CORS/host env
+  parsing) — directly unit-tested (`test_config.py`), since the actual middleware
+  wiring itself isn't testable via TestClient (decided at module-import time, not
+  request time) without restructuring main.py into an app-factory pattern — judged
+  not worth that churn for a deploy-config correctness pass on an otherwise-stable,
+  heavily-tested file. Live env-var checks substitute for that automated coverage.
+- Dockerfile's `CMD` now reads `$PORT` if the host injects one (`${PORT:-8000}`) —
+  Render/Railway/Heroku-style PaaS hosts require the container to bind to a
+  host-assigned port, not a hardcoded one. Found while writing the Render runbook,
+  before it could bite as a deploy-time surprise.
+- `.dockerignore` was missing entirely — added one, but a naive `*.docx`/`*.html`
+  pattern would have silently stripped `templates/kku_lesson_plan.docx` (the actual
+  runtime template) and `frontend/index.html` (Vite's build entry point) from the
+  build context. Scoped exclusions to specific paths instead (`/render_proof.docx`,
+  `/full_pipeline_proof.docx`, `/template/` singular, `/*.html` root-only).
+- This repo has no git remote yet (`git remote -v` is empty) — `docs/STAGING.md`'s
+  step 0 has the user push to GitHub first, since Render deploys from a Git provider
+  and creating/pushing to a new GitHub repo needs the user's own account.
+
 ## Open questions / blockers
 - None blocking further backend/frontend work. Real-world gaps worth the user's
   attention before going live:
@@ -129,10 +174,8 @@ edges) vs. what's done.
     References section will always render empty unless this is added later.
 
 ## Next session should start by
-- Nothing is blocking. If picking this up again: either (a) deploy it somewhere per
-  `docs/M11-deploy.md` and report back the URL/host so this file can be updated, or
-  (b) do a real end-to-end click-through in a browser with YOUR actual KKU Google
-  account (something I structurally cannot do), to catch anything the mocked-auth
-  test suite can't — e.g. the real OAuth consent screen experience, real cookie
-  behavior across the 5-stage wizard, or any UI rough edges on the correction/outline
-  screens that only show up with real extracted data of your choosing.
+- Nothing is blocking. The user's next step is `docs/STAGING.md` end to end: push to
+  GitHub, create the Render service, set the env vars, add the Google redirect URI,
+  run the 5-step smoke test. Report back here (URL, what broke, what didn't) so a
+  future session has the real-world facts the code alone can't provide — that's
+  exactly what this staging pass exists to surface before the real launch.
