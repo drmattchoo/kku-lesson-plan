@@ -4,33 +4,41 @@ Read this first each session, then run the test suite. Update it as the LAST act
 of every session.
 
 ## Status
-Current session target: Phase 0-2 complete, Phase 3 in progress (M0-M6, M8)
-Last green commit: e0dce47 — "M6: instructor form (Stage 1) — React+Vite wizard shell, POST /api/session, live-verified in browser ✓"
-Tree state: ☑ green
+**ALL MODULES BUILT (M0-M11).** Tree state: ☑ green (67 backend tests, frontend
+build+lint clean). Last green commit: b70e7b9 — "M11: single-process deploy (serve
+built frontend from FastAPI), Dockerfile, deploy doc — actual hosting decision left
+to user per project plan ✓"
 
-## Your homework (do before opening Claude Code)
+A full end-to-end live run (real DT.docx extraction → instructor correction → real
+outline generation with a brief → manual edit → single export → second outline →
+batch export to .zip) passed cleanly with NO mocking anywhere in the chain except
+auth (Google login can't be scripted without real credentials). See "Decisions made"
+below for what's still genuinely outstanding (deployment itself, a few UX rough
+edges) vs. what's done.
+
+## Your homework (do before opening Claude Code) — all done
 - [x] One clean official KKU lesson-plan .docx + written list of every field it needs
 - [x] Google sign-in credentials (Google Cloud, restricted to kku.ac.th) — in .env
 - [x] University API key + chosen model — KKU gateway (gen.ai.kku.ac.th) key in .env,
       verified live against both claude-sonnet-4.6 and gpt-5.5
 - [x] 2–3 REAL messy course specs to test extraction against — DT.docx (user-confirmed
-      current real spec) + PT.docx, both extracted live, GATE passed (see below)
+      current real spec) + PT.docx, both extracted live, GATE passed
 
 ## Modules
 | Phase | Module | Built | Tested | Notes |
 |-------|--------|-------|--------|-------|
 | 0 | M0  scaffold + config            | ☑ | ☑ | /health returns active model |
-| 0 | M1  template binder + render proof [reuse] | ☑ | ☑ | GATE passed: human verified render_proof.docx vs KKU standard; objective/content tied to CLOs, ผลการเรียนรู้ column computed as PLO/CLO pairs |
-| 1 | M2  Google sign-in (@kku.ac.th)  | ☑ | ☑ | Authlib + Starlette SessionMiddleware; /api/* guarded via require_kku_user; tests mock Google token, no network in test suite |
-| 2 | M3  LLM provider interface       | ☑ | ☑ | app/llm.py — single OpenAI-SDK client against KKU gateway, model-switched; live-verified against claude-sonnet-4.6 + gpt-5.5 |
-| 2 | M4  document loaders [reuse]     | ☑ | ☑ | app/document_loaders.py; tested against real curriculum/ docx + the real pptx, not synthetic fixtures |
-| 2 | M5  extraction service [reuse]   | ☑ | ☑ | app/extraction_service.py + app/schemas.py; GATE passed on real DT.docx (55 lectures, 4 CLOs, correctly 0 PLOs) and PT.docx (33 lectures, 3 CLOs) — see backend/extraction_proof/*.json |
-| 3 | M6  instructor form              | ☑ | ☑ | frontend/ scaffolded (React+Vite, Node found via nvm); Stage-1 form live-verified in real Chrome — filled all 10 fields, submitted, correctly redirected to the real Google consent screen with hd=kku.ac.th |
-| 3 | M7  upload + correction screen   | ☐ | ☐ | the load-bearing gate for messy input |
-| 3 | M8  outline service              | ☑ | ☑ | app/outline_service.py; live-verified all 3 grounding modes against real DT.docx lectures (spec-alone + slides-grounded), durations sum exactly — see backend/outline_proof/*.json |
-| 3 | M9  outline editor               | ☐ | ☐ | |
-| 3 | M10 batch export                 | ☐ | ☐ | reuses M1 binder |
-| 4 | M11 hardening + deploy           | ☐ | ☐ | |
+| 0 | M1  template binder + render proof [reuse] | ☑ | ☑ | GATE passed: human verified render_proof.docx vs KKU standard |
+| 1 | M2  Google sign-in (@kku.ac.th)  | ☑ | ☑ | Authlib + Starlette SessionMiddleware; every /api/* guarded |
+| 2 | M3  LLM provider interface       | ☑ | ☑ | single OpenAI-SDK client against KKU gateway, model-switched |
+| 2 | M4  document loaders [reuse]     | ☑ | ☑ | tested against real curriculum/ docx + real pptx |
+| 2 | M5  extraction service [reuse]   | ☑ | ☑ | GATE passed on real DT.docx + PT.docx — see backend/extraction_proof/*.json |
+| 3 | M6  instructor form              | ☑ | ☑ | React+Vite wizard Stage 1; live-verified in real Chrome incl. real Google redirect |
+| 3 | M7  upload + correction screen   | ☑ | ☑ | POST /api/extract, GET/PUT /api/course/{sid}; editable PLO/CLO/lecture lists + picker |
+| 3 | M8  outline service              | ☑ | ☑ | all 3 grounding modes live-verified — see backend/outline_proof/*.json |
+| 3 | M9  outline editor               | ☑ | ☑ | POST/PUT /api/outline wired; edit/reorder/add/remove key points, live total |
+| 3 | M10 batch export                 | ☑ | ☑ | POST /api/export(/batch); lesson_plan_assembler maps session->render context |
+| 4 | M11 hardening + deploy           | ☑ | ☑ | retry-once, 502 surfacing, rate limit, single-process static serving, Dockerfile |
 
 ## Decisions made
 - Auth: Google only, @kku.ac.th allowlist (confirmed by user). No payment.
@@ -38,76 +46,93 @@ Tree state: ☑ green
   {%tr for/endfor%} convention, each tag alone in its own row (open-tag row, body row,
   close-tag row) — putting both tags in the same row breaks docxtpl's regex.
 - Multi-line table cells (เนื้อหา) need docxtpl's `{{r ... }}` RichText run-tag, not
-  plain `{{ }}`, or the cell renders empty.
+  plain `{{ }}` — and that field must ALWAYS be converted to RichText regardless of
+  whether it contains a newline, because the `{{r}}` tag always strips the enclosing
+  `<w:r>` at the XML level. A plain string with no `\n` rendered as a BLANK cell before
+  this was fixed (found via the M10 real-data pipeline check, not by the unit tests,
+  since the M1 dummy fixture happened to always have multi-line content).
 - วัตถุประสงค์ is a CLO-tied action statement per key point, never a copy of the title.
-- ผลการเรียนรู้ column is COMPUTED from keyPoints[].cloRefs + CLOs[].ploRefs at render
-  time (PLO{x}/CLO{y} pairs) — never authored as free text.
+- ผลการเรียนรู้ column (table) AND the PLO/CLO heading list (paragraphs) both
+  normalize ids before rendering — real LLM extraction sometimes returns ids already
+  prefixed ("CLO1") instead of bare ("1"), and naively prepending "CLO"/"PLO" again
+  produced "CLOCLO1"/"PLOPLO4". `template_binder._strip_prefix` fixes both the table
+  (`_format_lo_refs`) and the heading list (`_prepare_context`'s PLOs/CLOs id
+  normalization) — found via the M10 real-data pipeline check.
 - Google OAuth client registered with explicit authorize/token URLs (no discovery-doc
   fetch) so /auth/login needs no network access and is fully unit-testable offline.
 - LLM is NOT two separate provider SDKs — gen.ai.kku.ac.th is one OpenAI-compatible
   gateway that routes to Claude/GPT/others by `model` name. app/llm.py is a single
   `openai` SDK client pointed at that base_url; "switch by config" just changes the
-  model string (LLM_PROVIDER=claude|gpt in .env), not the client class.
-- docx loader walks the body in document order (paragraphs interleaved with tables),
-  not "all paragraphs then all tables" — มคอ tables are meaningless out of context.
-- Horizontally-merged table cells repeat the same cell object/text N times in
-  `row.cells` (python-docx quirk, confirmed against the real PT.docx schedule table)
-  → dedupe consecutive identical cells per row before joining, or every merged header
-  cell prints 2-8x. PDF (PS.pdf) is explicitly NOT supported by M4 — out of CLAUDE.md's
-  documented scope (pptx/docx only); flag if a real มคอ shows up as PDF.
-- Real fixtures used for M4 tests instead of synthetic ones (tests/fixtures/PT.docx,
-  Autonomic_Nervous_System.pptx) — fixtures live at repo-root tests/fixtures/, not
-  backend/tests/fixtures/ (only dummy_lesson_plan_context.py lives under backend/).
-- Real มคอ-3 specs legitimately have NO PLOs (DT.docx's PLO/CLO mapping table — section
-  10 — is headers-only with empty rows; that section only applies to thesis-type
-  courses). Extraction must return PLOs: [] in that case, never invent PLOs to fill
-  the gap — confirmed correct in the M5 human-gate run.
+  model string (LLM_PROVIDER=claude|gpt in .env), not the client class. **Per-key
+  daily quota is shared across models** — hit "daily limit" on claude-sonnet-4.6
+  mid-build from cumulative testing; switching `LLM_PROVIDER=gpt` worked immediately
+  as a fallback. Worth knowing if live testing/usage hits a wall.
+- docx loader walks the body in document order (paragraphs interleaved with tables) —
+  มคอ tables are meaningless out of context. Horizontally-merged table cells repeat
+  the same text N times in `row.cells` (python-docx quirk) → deduped per row.
+  PDF (PS.pdf) is explicitly NOT supported by M4 — out of CLAUDE.md's documented
+  scope (pptx/docx only); flag if a real มคอ shows up as PDF.
+- Real มคอ-3 specs legitimately have NO PLOs (DT.docx's PLO/CLO mapping table is
+  headers-only with empty rows — only applies to thesis-type courses). Extraction
+  must return PLOs: [] in that case, never invent PLOs to fill the gap.
 - Schedule tables almost never state CLO ids per row directly — the extraction prompt
-  has the LLM infer cloRefs by matching each lecture's topic/expected-outcome text
-  against the course-level CLOs it already extracted. Best-effort; instructor corrects
-  via M7's correction screen, not M5's job to be perfect.
-- extraction_service.extract_course() is NOT covered by automated live-LLM tests (mocked
-  provider only, per convention) — the human-gate proof lives in
-  backend/extraction_proof/{DT,PT}.json, generated by a manual one-off script, not pytest.
+  has the LLM infer cloRefs by matching topic text against extracted CLOs. Best-effort;
+  the instructor corrects via M7, not M5's job to be perfect.
 - session_store is disk-backed JSON under repo-root sessions/ (gitignored), keyed by a
-  uuid4 hex session id; tests monkeypatch session_store.SESSIONS_DIR to tmp_path for
-  isolation rather than touching the real sessions/ dir.
-- POST /api/session deliberately has NO matching GET endpoint yet — not in CLAUDE.md's
-  documented API surface for M6, so left out rather than added speculatively. M7's
-  GET/PUT /api/course/{sid} will be the first read path into session data.
-- outline_service.generate_outline() recomputes totalDurationMin itself by summing the
-  returned keyPoints — it does NOT trust whatever total the model states, and does NOT
-  hard-fail if the sum drifts from the lecture's scheduled duration. "4-8 points
-  summing to durationMin" is a prompt instruction/target, not a validator; M9's "live
-  total" editor is where the instructor reconciles this, matching the M5 "best-effort,
-  never block" philosophy.
-- No /api/outline endpoint wired into main.py yet — M8 only built the core
-  generate_outline() service (the part with a real test/build-order rationale). Wiring
-  POST /api/outline needs M7's session["course"] (the corrected ExtractedCourse) to
-  exist first, so the route is deferred to when M7 lands, not built speculatively now.
-
+  uuid4 hex id; tests monkeypatch session_store.SESSIONS_DIR to tmp_path for isolation.
+- InstructorProfile needed a `learners` field (the KKU template's "ผู้เรียน" target-
+  audience line) that nothing originally captured — added during M10 when building
+  the render-context assembler exposed the gap. sessionDate/sessionTime are NOT part
+  of any earlier-stage schema; they're collected at export time (M10's UI) since
+  they're naturally tied to "when are you actually teaching this", which can vary by
+  section/group even for the same generated outline.
+- The KKU template only shows the date/time block on the table's FIRST row, blank for
+  the rest — confirmed against both real filled examples (PT_ANS_2569.docx,
+  PS_ANS_2569.docx) — `lesson_plan_assembler.build_render_context` sets timeLabel only
+  on keyPoints[0], no per-row time-arithmetic.
 - Node.js/npm IS installed on this machine via nvm (`~/.nvm`, node v24.18.0, npm
-  11.16.0) — it's just not on PATH by default in a fresh shell. Always run
+  11.16.0) — just not on PATH by default in a fresh shell. Always run
   `export NVM_DIR="$HOME/.nvm"; source "$NVM_DIR/nvm.sh"` before any node/npm command.
-  (Earlier sessions wrongly concluded Node wasn't installed at all — it was just not
-  sourced. Always re-check with nvm before assuming it's missing.)
-- frontend/ is a Vite+React scaffold (`npm create vite@latest -- --template react`),
-  dev proxy in vite.config.js forwards /api and /auth to http://localhost:8000 so the
-  two dev servers (vite on 5173, uvicorn on 8000) work together locally without CORS
-  config. node_modules/ is gitignored; package-lock.json is committed.
-- Browser verification used the Claude-in-Chrome MCP (navigate/read_page/form_input/
-  computer click), not the Preview MCP — preview_start needs `.claude/launch.json`
-  relative to the session's registered project root (webapp_kk1), but this app's
-  actual code lives in the sibling dir `webapp kk2`, so Claude-in-Chrome against a
-  manually-started dev server (plain `npm run dev` / `uvicorn` in the background) was
-  simpler. Did NOT attempt actual Google login (that needs real credentials and is a
-  prohibited action) — confirmed the redirect URL/params are correct and stopped there;
-  post-login session creation is already covered by M6's mocked-auth test suite.
+- frontend/ is a Vite+React scaffold; dev proxy in vite.config.js forwards /api and
+  /auth to localhost:8000 for local dev (vite on 5173, uvicorn on 8000). In
+  production, `app/main.py` mounts `frontend/dist/` (after `npm run build`) as static
+  files on the SAME FastAPI process — one container, one port. See `docs/M11-deploy.md`.
+- Browser verification used the Claude-in-Chrome MCP, not the Preview MCP —
+  preview_start needs `.claude/launch.json` relative to the session's registered
+  project root (webapp_kk1), but this app's code lives in the sibling dir `webapp kk2`.
+  Did NOT attempt actual Google login in the browser (needs real credentials, a
+  prohibited action) — confirmed the redirect URL/params are correct via real Chrome,
+  and verified every authenticated flow via TestClient with a mocked Google token
+  (which exercises the real session-cookie code path, just not a literal browser).
+- LLM-calling endpoints (`/api/extract`, `/api/outline`) are rate-limited per user
+  (5/min, 10/min respectively) via an in-process sliding window — matches "no real DB
+  needed" scope; would need a shared store (Redis) only if scaled beyond one instance.
+- Persistent (post-retry) LLM failures surface as a clean `502` with a Thai message,
+  not a raw `500` — `app/main.py`'s `_run_llm_step` helper.
+- Actual deployment (picking a host, DNS, going live) was deliberately NOT done —
+  that's the user's own step per the project's own handoff plan (project-handoff.html
+  literally says "Deploy ask IT"). Built: Dockerfile, single-process static serving,
+  and `docs/M11-deploy.md` explaining exactly how to run it on Render/Railway/Fly.io
+  or hand to KKU IT. Docker itself isn't installed on this machine, so the Dockerfile
+  is carefully path-checked against the real repo structure but NOT build-tested.
 
 ## Open questions / blockers
-- (none blocking — Node is available; M7/M9/M10 frontend work can proceed normally)
+- None blocking further backend/frontend work. Real-world gaps worth the user's
+  attention before going live:
+  - The Google Cloud OAuth consent screen is presumably "External" mode (since
+    "Internal" needs the Cloud project inside KKU's Workspace org) — confirm with KKU
+    IT per `docs/M2-kku-login-setup.md` step 0 if they want the stricter tier.
+  - `sessions/` is local disk — fine for one container; flag to KKU IT if they want
+    multiple replicas without session affinity (see `docs/M11-deploy.md`).
+  - References (course textbook list) are never extracted or rendered — out of scope
+    by design (M5's ExtractedCourse schema has no references field); the KKU template's
+    References section will always render empty unless this is added later.
 
 ## Next session should start by
-- M7 (upload + correction screen) is next in build order — the load-bearing gate for
-  messy input. Needs multipart upload UI + the GET/PUT /api/course/{sid} backend
-  endpoints (not yet built) wired to extraction_service (M5) and session_store (M6).
+- Nothing is blocking. If picking this up again: either (a) deploy it somewhere per
+  `docs/M11-deploy.md` and report back the URL/host so this file can be updated, or
+  (b) do a real end-to-end click-through in a browser with YOUR actual KKU Google
+  account (something I structurally cannot do), to catch anything the mocked-auth
+  test suite can't — e.g. the real OAuth consent screen experience, real cookie
+  behavior across the 5-stage wizard, or any UI rough edges on the correction/outline
+  screens that only show up with real extracted data of your choosing.
