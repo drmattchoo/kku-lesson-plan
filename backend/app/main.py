@@ -6,10 +6,11 @@ from typing import Optional
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.auth import require_kku_user, router as auth_router
-from app.config import settings
+from app.config import REPO_ROOT, settings
 from app.document_loaders import load_document_text
 from app.extraction_service import extract_course
 from app.lesson_plan_assembler import build_render_context
@@ -221,3 +222,12 @@ def render_proof(user: dict = Depends(require_kku_user)) -> FileResponse:
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         filename="render_proof.docx",
     )
+
+
+# Single-process deployment: serve the built React app from this same FastAPI
+# process if `npm run build` has been run (frontend/dist exists). Mounted LAST so
+# it never shadows the /api/* and /auth/* routes above. Absent in dev (Vite's own
+# dev server + proxy handles the frontend instead) and in the test suite.
+_frontend_dist = REPO_ROOT / "frontend" / "dist"
+if _frontend_dist.exists():
+    app.mount("/", StaticFiles(directory=_frontend_dist, html=True), name="frontend")
