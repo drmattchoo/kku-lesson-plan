@@ -1,0 +1,581 @@
+{
+  "courseCode": "MD672305",
+  "courseName": "สรีรวิทยาสำหรับนักศึกษาทันตแพทย์ (Physiology for Dental Students)",
+  "PLOs": [],
+  "CLOs": [
+    {
+      "id": "CLO1",
+      "text": "อธิบายกลไกการทำงานของระบบต่าง ๆ ของร่างกาย และวิเคราะห์ความสัมพันธ์ของระบบเหล่านี้ในการคงภาวะสมดุล (homeostasis) ของร่างกายตามหลักสรีรวิทยา",
+      "ploRefs": []
+    },
+    {
+      "id": "CLO2",
+      "text": "ปฏิบัติการทดลองทางสรีรวิทยาพื้นฐานได้อย่างถูกต้อง",
+      "ploRefs": []
+    },
+    {
+      "id": "CLO3",
+      "text": "ประยุกต์ใช้ความรู้ด้านสรีรวิทยาในการอธิบายภาวะปกติและความผิดปกติที่เกี่ยวข้อง",
+      "ploRefs": []
+    },
+    {
+      "id": "CLO4",
+      "text": "ปฏิบัติการเรียนและกิจกรรมในรายวิชาด้วยความซื่อสัตย์ รับผิดชอบ มีวินัย และตรงต่อเวลา รวมถึงการส่งงาน การเข้าสอบ และการทำงานกลุ่มตามระเบียบของรายวิชา",
+      "ploRefs": []
+    }
+  ],
+  "lectures": [
+    {
+      "id": "1",
+      "week": "1",
+      "topic": "แนะนำรายวิชา (Course orientation)",
+      "name": "แนะนำรายวิชา (Course orientation)",
+      "durationMin": 5,
+      "cloRefs": [
+        "CLO4"
+      ]
+    },
+    {
+      "id": "2",
+      "week": "1",
+      "topic": "บทนำสู่สรีรวิทยา สารน้ำในร่างกายและอิเล็กโทรไลต์ (Introduction to physiology, body fluids and electrolytes)",
+      "name": "บทนำสู่สรีรวิทยา สารน้ำในร่างกายและอิเล็กโทรไลต์ (Introduction to physiology, body fluids and electrolytes)",
+      "durationMin": 55,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "3",
+      "week": "1",
+      "topic": "การขนส่งสารผ่านเยื่อหุ้มเซลล์ (Membrane transport)",
+      "name": "การขนส่งสารผ่านเยื่อหุ้มเซลล์ (Membrane transport)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "4",
+      "week": "1",
+      "topic": "สรีรวิทยาระบบประสาท (Physiology of nervous tissue)",
+      "name": "สรีรวิทยาระบบประสาท (Physiology of nervous tissue)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "5",
+      "week": "1",
+      "topic": "การถ่ายทอดสัญญาณส่งผ่านจุดประสานประสาท (Synaptic transmission)",
+      "name": "การถ่ายทอดสัญญาณส่งผ่านจุดประสานประสาท (Synaptic transmission)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "6",
+      "week": "1-2",
+      "topic": "สรีรวิทยากล้ามเนื้อ (Physiology of muscle)",
+      "name": "สรีรวิทยากล้ามเนื้อ (Physiology of muscle)",
+      "durationMin": 180,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "7",
+      "week": "2",
+      "topic": "Lab&conf 1: Membrane transport (ปฏิบัติการเรื่องการขนส่งสารผ่านเยื่อหุ้มเซลล์)",
+      "name": "Lab&conf 1: Membrane transport (ปฏิบัติการเรื่องการขนส่งสารผ่านเยื่อหุ้มเซลล์)",
+      "durationMin": 240,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "8",
+      "week": "2-3",
+      "topic": "ระบบประสาทรับความรู้สึก (Sensory system)",
+      "name": "ระบบประสาทรับความรู้สึก (Sensory system)",
+      "durationMin": 240,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "9",
+      "week": "3",
+      "topic": "Lab&conf 2: The nerve impulse [VDO] (ปฏิบัติการสัญญาณประสาท)",
+      "name": "Lab&conf 2: The nerve impulse [VDO] (ปฏิบัติการสัญญาณประสาท)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "10",
+      "week": "3",
+      "topic": "Lab&conf 3: Contraction of skeletal muscle [VDO] (การหดตัวของกล้ามเนื้อลาย)",
+      "name": "Lab&conf 3: Contraction of skeletal muscle [VDO] (การหดตัวของกล้ามเนื้อลาย)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "11",
+      "week": "3",
+      "topic": "ระบบประสาทอัตโนวัติ (Autonomic nervous system)",
+      "name": "ระบบประสาทอัตโนวัติ (Autonomic nervous system)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "12",
+      "week": "4",
+      "topic": "หน้าที่ของไฮโปทาลามัส (Functions of the hypothalamus)",
+      "name": "หน้าที่ของไฮโปทาลามัส (Functions of the hypothalamus)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "13",
+      "week": "4",
+      "topic": "ระบบประสาทสั่งการ (Motor system)",
+      "name": "ระบบประสาทสั่งการ (Motor system)",
+      "durationMin": 240,
+      "cloRefs": [
+        "CLO1",
+        "CLO3"
+      ]
+    },
+    {
+      "id": "14",
+      "week": "4",
+      "topic": "รีเฟล็กซ์ (Reflexes)",
+      "name": "รีเฟล็กซ์ (Reflexes)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "15",
+      "week": "5-6",
+      "topic": "ระบบสัมผัสพิเศษ (Special senses)",
+      "name": "ระบบสัมผัสพิเศษ (Special senses)",
+      "durationMin": 240,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "16",
+      "week": "5",
+      "topic": "Lab&conf 4: Reflexes in man (ปฏิบัติการ เรื่องการตรวจสอบปฏิกิริยารีเฟล็กซ์)",
+      "name": "Lab&conf 4: Reflexes in man (ปฏิบัติการ เรื่องการตรวจสอบปฏิกิริยารีเฟล็กซ์)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "17",
+      "week": "5",
+      "topic": "Lab&Conf 5: The special sense [VDO] (ระบบสัมผัสพิเศษ)",
+      "name": "Lab&Conf 5: The special sense [VDO] (ระบบสัมผัสพิเศษ)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "18",
+      "week": "6",
+      "topic": "กรณีศึกษาที่ 1 ระบบประสาทและกล้ามเนื้อ (Case study of Integrative physiology 1: Case neuromuscular)",
+      "name": "กรณีศึกษาที่ 1 ระบบประสาทและกล้ามเนื้อ (Case study of Integrative physiology 1: Case neuromuscular)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO3"
+      ]
+    },
+    {
+      "id": "19",
+      "week": "6",
+      "topic": "เลือด (Blood)",
+      "name": "เลือด (Blood)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "20",
+      "week": "6",
+      "topic": "CVS (1) - Electrical activity of the heart and ECG",
+      "name": "CVS (1) - Electrical activity of the heart and ECG",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "21",
+      "week": "7",
+      "topic": "CVS (2-3) - Cardiac pump and cardiodynamics",
+      "name": "CVS (2-3) - Cardiac pump and cardiodynamics",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "22",
+      "week": "7",
+      "topic": "CVS (4) - Hemodynamics",
+      "name": "CVS (4) - Hemodynamics",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "23",
+      "week": "7",
+      "topic": "CVS (5) - Arterial and venous system",
+      "name": "CVS (5) - Arterial and venous system",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "24",
+      "week": "8",
+      "topic": "CVS (6) - Cardiovascular control",
+      "name": "CVS (6) - Cardiovascular control",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "25",
+      "week": "8",
+      "topic": "CVS (7) - Microcirculation and regional circulation",
+      "name": "CVS (7) - Microcirculation and regional circulation",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "26",
+      "week": "8",
+      "topic": "Lab&Conf 7: Electrocardiogram (EKG) ปฏิบัติการการวัดคลื่นไฟฟ้าหัวใจ",
+      "name": "Lab&Conf 7: Electrocardiogram (EKG) ปฏิบัติการการวัดคลื่นไฟฟ้าหัวใจ",
+      "durationMin": 240,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "27",
+      "week": "9",
+      "topic": "ระบบหายใจ 1-2 (Respiratory system 1-2)",
+      "name": "ระบบหายใจ 1-2 (Respiratory system 1-2)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "28",
+      "week": "9-10",
+      "topic": "ระบบหายใจ 3-5 (Respiratory system 3-5)",
+      "name": "ระบบหายใจ 3-5 (Respiratory system 3-5)",
+      "durationMin": 180,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "29",
+      "week": "10",
+      "topic": "Lab&Conf 8: Blood pressure (ปฏิบัติการวัดความดันเลือด)",
+      "name": "Lab&Conf 8: Blood pressure (ปฏิบัติการวัดความดันเลือด)",
+      "durationMin": 180,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "30",
+      "week": "10",
+      "topic": "ระบบทางเดินอาหาร 1 – ระบบประสาททางเดินอาหารและฮอร์โมนที่เกี่ยวข้อง (GI (1) - GI nervous system and hormone)",
+      "name": "ระบบทางเดินอาหาร 1 – ระบบประสาททางเดินอาหารและฮอร์โมนที่เกี่ยวข้อง (GI (1) - GI nervous system and hormone)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "31",
+      "week": "10",
+      "topic": "Lab&conf 9: Lung volume and capacity (VDO) ปฏิบัติการการวัดปริมาตรและความจุปอด",
+      "name": "Lab&conf 9: Lung volume and capacity (VDO) ปฏิบัติการการวัดปริมาตรและความจุปอด",
+      "durationMin": 240,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "32",
+      "week": "10",
+      "topic": "ระบบทางเดินอาหาร 2 – การเคลื่อนไหวของระบบทางเดินอาหาร (GI (2) - GI motility)",
+      "name": "ระบบทางเดินอาหาร 2 – การเคลื่อนไหวของระบบทางเดินอาหาร (GI (2) - GI motility)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "33",
+      "week": "10",
+      "topic": "ระบบทางเดินอาหาร 3 – การคัดหลั่ง (GI (3) - Salivary and gastric secretions)",
+      "name": "ระบบทางเดินอาหาร 3 – การคัดหลั่ง (GI (3) - Salivary and gastric secretions)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "34",
+      "week": "11",
+      "topic": "ระบบทางเดินอาหาร 4 – การคัดหลั่งสารจากตับอ่อนและลำไส้เล็ก (GI (4) - Pancreatic and intestinal secretions)",
+      "name": "ระบบทางเดินอาหาร 4 – การคัดหลั่งสารจากตับอ่อนและลำไส้เล็ก (GI (4) - Pancreatic and intestinal secretions)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "35",
+      "week": "11",
+      "topic": "ระบบทางเดินอาหาร 5 – การย่อยและการดูดซึมสารอาหาร (GI (5) - Digestion and absorption of nutrient)",
+      "name": "ระบบทางเดินอาหาร 5 – การย่อยและการดูดซึมสารอาหาร (GI (5) - Digestion and absorption of nutrient)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "36",
+      "week": "11",
+      "topic": "ระบบทางเดินอาหาร 6 – ตับและถุงน้ำดี (GI (6) - Liver and bile secretions)",
+      "name": "ระบบทางเดินอาหาร 6 – ตับและถุงน้ำดี (GI (6) - Liver and bile secretions)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "37",
+      "week": "11",
+      "topic": "ระบบขับถ่ายปัสสาวะ 1 - โครงสร้างและหน้าที่ของไต (KUB 1 - Structure and function of the kidney)",
+      "name": "ระบบขับถ่ายปัสสาวะ 1 - โครงสร้างและหน้าที่ของไต (KUB 1 - Structure and function of the kidney)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "38",
+      "week": "11",
+      "topic": "ระบบขับถ่ายปัสสาวะ 2 - การสร้างปัสสาวะ (KUB 2 - Urine formation)",
+      "name": "ระบบขับถ่ายปัสสาวะ 2 - การสร้างปัสสาวะ (KUB 2 - Urine formation)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "39",
+      "week": "12",
+      "topic": "ระบบขับถ่ายปัสสาวะ 3 - การควบคุมสารน้ำและอิเล็กโตรไลท์ (KUB 3 - Body fluid and electrolyte control)",
+      "name": "ระบบขับถ่ายปัสสาวะ 3 - การควบคุมสารน้ำและอิเล็กโตรไลท์ (KUB 3 - Body fluid and electrolyte control)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "40",
+      "week": "12",
+      "topic": "ระบบขับถ่ายปัสสาวะ 4 - การรักษาสมดุลกรด-ด่าง (KUB 4 - Acid-base balance)",
+      "name": "ระบบขับถ่ายปัสสาวะ 4 - การรักษาสมดุลกรด-ด่าง (KUB 4 - Acid-base balance)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "41",
+      "week": "12",
+      "topic": "ระบบขับถ่ายปัสสาวะ 5 - การขับถ่ายปัสสาวะ (KUB 5 - Micturition)",
+      "name": "ระบบขับถ่ายปัสสาวะ 5 - การขับถ่ายปัสสาวะ (KUB 5 - Micturition)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "42",
+      "week": "12",
+      "topic": "Lab&conf 10: Gastrointestinal System [short case study] (ปฏิบัติการระบบทางเดินอาหาร รูปแบบกรณีศึกษาแบบสั้น)",
+      "name": "Lab&conf 10: Gastrointestinal System [short case study] (ปฏิบัติการระบบทางเดินอาหาร รูปแบบกรณีศึกษาแบบสั้น)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO2",
+        "CLO3"
+      ]
+    },
+    {
+      "id": "43",
+      "week": "12",
+      "topic": "ระบบต่อมไร้ท่อ 1 - บทนำระบบต่อมไร้ท่อ (EN (1) Introduction to endocrine system)",
+      "name": "ระบบต่อมไร้ท่อ 1 - บทนำระบบต่อมไร้ท่อ (EN (1) Introduction to endocrine system)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "44",
+      "week": "12",
+      "topic": "ระบบต่อมไร้ท่อ 2 – ต่อมใต้สมอง (EN 2 - Pituitary gland)",
+      "name": "ระบบต่อมไร้ท่อ 2 – ต่อมใต้สมอง (EN 2 - Pituitary gland)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "45",
+      "week": "13",
+      "topic": "ระบบต่อมไร้ท่อ 3 – ต่อมไทรอยด์ (EN 3 - Thyroid gland)",
+      "name": "ระบบต่อมไร้ท่อ 3 – ต่อมไทรอยด์ (EN 3 - Thyroid gland)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "46",
+      "week": "13",
+      "topic": "ระบบต่อมไร้ท่อ 4 – ต่อมพาราไทรอยด์และการควบคุมแคลเซียม (EN 4 - Parathyroid glands and calcium metabolism)",
+      "name": "ระบบต่อมไร้ท่อ 4 – ต่อมพาราไทรอยด์และการควบคุมแคลเซียม (EN 4 - Parathyroid glands and calcium metabolism)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "47",
+      "week": "13",
+      "topic": "ระบบต่อมไร้ท่อ 5 – ต่อมหมวกไต (EN 5 - Hormone of adrenal gland)",
+      "name": "ระบบต่อมไร้ท่อ 5 – ต่อมหมวกไต (EN 5 - Hormone of adrenal gland)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "48",
+      "week": "13",
+      "topic": "ระบบต่อมไร้ท่อ 6 – ตับอ่อนและการควบคุมน้ำตาลในเลือด (EN 6 - Pancreas and glucose regulation)",
+      "name": "ระบบต่อมไร้ท่อ 6 – ตับอ่อนและการควบคุมน้ำตาลในเลือด (EN 6 - Pancreas and glucose regulation)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "49",
+      "week": "13",
+      "topic": "ระบบต่อมไร้ท่อ 7 – ฮอร์โมนจากต่อมไพเนียลและอื่นๆ (EN 7 - Hormones of pineal gland and other hormones)",
+      "name": "ระบบต่อมไร้ท่อ 7 – ฮอร์โมนจากต่อมไพเนียลและอื่นๆ (EN 7 - Hormones of pineal gland and other hormones)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "50",
+      "week": "13",
+      "topic": "Lab&conf 11: Urinary system [VDO] (ปฏิบัติการระบบขับถ่ายปัสสาวะ)",
+      "name": "Lab&conf 11: Urinary system [VDO] (ปฏิบัติการระบบขับถ่ายปัสสาวะ)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "51",
+      "week": "14",
+      "topic": "Lab&conf 12: Endocrine System [VDO] (ปฏิบัติการระบบต่อมไร้ท่อ)",
+      "name": "Lab&conf 12: Endocrine System [VDO] (ปฏิบัติการระบบต่อมไร้ท่อ)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "52",
+      "week": "14",
+      "topic": "ระบบสืบพันธุ์ 1-3 (Reproductive system 1-3)",
+      "name": "ระบบสืบพันธุ์ 1-3 (Reproductive system 1-3)",
+      "durationMin": 180,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "53",
+      "week": "14",
+      "topic": "พลังงานและเมแทบอลิซึม (Energy metabolism)",
+      "name": "พลังงานและเมแทบอลิซึม (Energy metabolism)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "54",
+      "week": "14",
+      "topic": "การควบคุมอุณหภูมิร่างกาย (Regulation of body temperature)",
+      "name": "การควบคุมอุณหภูมิร่างกาย (Regulation of body temperature)",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "55",
+      "week": "15",
+      "topic": "Lab&conf 13: Reproductive System [VDO] (ปฏิบัติการระบบสืบพันธุ์)",
+      "name": "Lab&conf 13: Reproductive System [VDO] (ปฏิบัติการระบบสืบพันธุ์)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO2"
+      ]
+    }
+  ]
+}

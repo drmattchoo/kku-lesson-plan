@@ -1,0 +1,354 @@
+{
+  "courseCode": "MD672308",
+  "courseName": "สรีรวิทยาสำหรับนักศึกษากายภาพบำบัด (Physiology for Physical Therapy Students)",
+  "PLOs": [],
+  "CLOs": [
+    {
+      "id": "CLO1",
+      "text": "นักศึกษาสามารถอธิบายกลไกการทำงานของระบบต่าง ๆ ของร่างกาย และวิเคราะห์ความสัมพันธ์ของระบบเหล่านี้ในการคงภาวะสมดุล (homeostasis) ของร่างกายตามหลักสรีรวิทยา",
+      "ploRefs": []
+    },
+    {
+      "id": "CLO2",
+      "text": "นักศึกษาสามารถปฏิบัติการทดลองทางสรีรวิทยาพื้นฐานได้อย่างถูกต้องตาม และแสดงความรับผิดชอบต่อตนเองและผู้อื่นระหว่างการปฏิบัติ",
+      "ploRefs": []
+    },
+    {
+      "id": "CLO3",
+      "text": "นักศึกษาสามารถประยุกต์ใช้ความรู้ด้านสรีรวิทยาในการอธิบายภาวะปกติและความผิดปกติที่เกี่ยวข้องกับการประเมินและวางแผนบริการทางกายภาพบำบัดขั้นพื้นฐาน",
+      "ploRefs": []
+    }
+  ],
+  "lectures": [
+    {
+      "id": "1",
+      "week": "1",
+      "topic": "Course orientation",
+      "name": "Course orientation",
+      "durationMin": 5,
+      "cloRefs": []
+    },
+    {
+      "id": "2",
+      "week": "1",
+      "topic": "Introduction to physiology, body fluids and electrolytes",
+      "name": "Introduction to physiology, body fluids and electrolytes",
+      "durationMin": 55,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "3",
+      "week": "1",
+      "topic": "Membrane transport",
+      "name": "Membrane transport",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "4",
+      "week": "1",
+      "topic": "Membrane potential, action potential and synaptic transmission",
+      "name": "Membrane potential, action potential and synaptic transmission",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "5",
+      "week": "2",
+      "topic": "LAB: Membrane transport (การขนส่งสารผ่านเยื่อหุ้มเซลล์)",
+      "name": "LAB: Membrane transport (การขนส่งสารผ่านเยื่อหุ้มเซลล์)",
+      "durationMin": 180,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "6",
+      "week": "2",
+      "topic": "Introduction to nervous system",
+      "name": "Introduction to nervous system",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "7",
+      "week": "2",
+      "topic": "Autonomic nervous system",
+      "name": "Autonomic nervous system",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "8",
+      "week": "3",
+      "topic": "Muscular system",
+      "name": "Muscular system",
+      "durationMin": 180,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "9",
+      "week": "3",
+      "topic": "LAB: Contraction of skeletal muscle [VDO] (การหดตัวของกล้ามเนื้อลาย)",
+      "name": "LAB: Contraction of skeletal muscle [VDO] (การหดตัวของกล้ามเนื้อลาย)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "10",
+      "week": "4",
+      "topic": "LAB: The nerve impulse [short case study] (สัญญาณประสาท)",
+      "name": "LAB: The nerve impulse [short case study] (สัญญาณประสาท)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO2",
+        "CLO3"
+      ]
+    },
+    {
+      "id": "11",
+      "week": "4",
+      "topic": "Special senses",
+      "name": "Special senses",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "12",
+      "week": "5",
+      "topic": "LAB: The special sense [VDO] (ระบบสัมผัสพิเศษ)",
+      "name": "LAB: The special sense [VDO] (ระบบสัมผัสพิเศษ)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "13",
+      "week": "6",
+      "topic": "Reflexes",
+      "name": "Reflexes",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "14",
+      "week": "6",
+      "topic": "LAB: Reflexes in man (การตรวจสอบปฏิกิริยารีเฟล็กซ์)",
+      "name": "LAB: Reflexes in man (การตรวจสอบปฏิกิริยารีเฟล็กซ์)",
+      "durationMin": 180,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "15",
+      "week": "6",
+      "topic": "Cardiovascular system (1-2)",
+      "name": "Cardiovascular system (1-2)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "16",
+      "week": "7",
+      "topic": "LAB: EKG Electrocardiograph การวัดคลื่นไฟฟ้าหัวใจ",
+      "name": "LAB: EKG Electrocardiograph การวัดคลื่นไฟฟ้าหัวใจ",
+      "durationMin": 180,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "17",
+      "week": "7",
+      "topic": "Cardiovascular system (3-4)",
+      "name": "Cardiovascular system (3-4)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "18",
+      "week": "8",
+      "topic": "LAB: Arterial blood pressure (การวัดความดันเลือดแดง)",
+      "name": "LAB: Arterial blood pressure (การวัดความดันเลือดแดง)",
+      "durationMin": 180,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "19",
+      "week": "8",
+      "topic": "Integrative Physiology I Case: neuromuscular system",
+      "name": "Integrative Physiology I Case: neuromuscular system",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO3"
+      ]
+    },
+    {
+      "id": "20",
+      "week": "9",
+      "topic": "Respiratory system",
+      "name": "Respiratory system",
+      "durationMin": 180,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "21",
+      "week": "9",
+      "topic": "Excretory system & acid-base balance",
+      "name": "Excretory system & acid-base balance",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "22",
+      "week": "10",
+      "topic": "LAB: Lung volume and capacity (ปริมาตรและความจุปอด)",
+      "name": "LAB: Lung volume and capacity (ปริมาตรและความจุปอด)",
+      "durationMin": 180,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "23",
+      "week": "10",
+      "topic": "LAB: Renal function [VDO] (การทำงานของไต)",
+      "name": "LAB: Renal function [VDO] (การทำงานของไต)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "24",
+      "week": "11",
+      "topic": "Gastrointestinal system",
+      "name": "Gastrointestinal system",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "25",
+      "week": "11",
+      "topic": "Endocrine system",
+      "name": "Endocrine system",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "26",
+      "week": "12",
+      "topic": "LAB: Gastrointestinal System [short case study] (ระบบทางเดินอาหาร)",
+      "name": "LAB: Gastrointestinal System [short case study] (ระบบทางเดินอาหาร)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO2",
+        "CLO3"
+      ]
+    },
+    {
+      "id": "27",
+      "week": "12",
+      "topic": "Reproductive system",
+      "name": "Reproductive system",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "28",
+      "week": "13",
+      "topic": "LAB: Endocrine System [VDO] (ระบบต่อมไร้ท่อ)",
+      "name": "LAB: Endocrine System [VDO] (ระบบต่อมไร้ท่อ)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "29",
+      "week": "13",
+      "topic": "Energy and metabolism",
+      "name": "Energy and metabolism",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "30",
+      "week": "14",
+      "topic": "LAB: Reproductive System [VDO] (ระบบสืบพันธุ์)",
+      "name": "LAB: Reproductive System [VDO] (ระบบสืบพันธุ์)",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "31",
+      "week": "14",
+      "topic": "Body temperature regulation",
+      "name": "Body temperature regulation",
+      "durationMin": 60,
+      "cloRefs": [
+        "CLO1"
+      ]
+    },
+    {
+      "id": "32",
+      "week": "15",
+      "topic": "LAB: Measurement of metabolic rate [VDO] (การวัดอัตราการใช้พลังงานในร่างกาย)",
+      "name": "LAB: Measurement of metabolic rate [VDO] (การวัดอัตราการใช้พลังงานในร่างกาย)",
+      "durationMin": 180,
+      "cloRefs": [
+        "CLO2"
+      ]
+    },
+    {
+      "id": "33",
+      "week": "15",
+      "topic": "Integrative Physiology II Case: CVS&RS",
+      "name": "Integrative Physiology II Case: CVS&RS",
+      "durationMin": 120,
+      "cloRefs": [
+        "CLO3"
+      ]
+    }
+  ]
+}
