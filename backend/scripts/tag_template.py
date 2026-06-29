@@ -61,7 +61,7 @@ def tag_table(doc: docx.document.Document) -> None:
     set_paragraph_text(cells[2].paragraphs[0], "{{ kp.durationMin }}")
     set_paragraph_text(cells[3].paragraphs[0], "{{ kp.cloRefsText }}")
     set_paragraph_text(cells[4].paragraphs[0], "{{ kp.objective }}")
-    set_paragraph_text(cells[5].paragraphs[0], "{{ kp.content }}")
+    set_paragraph_text(cells[5].paragraphs[0], "{{r kp.content }}")
     set_paragraph_text(cells[6].paragraphs[0], "{{ kp.teachingMethod }}")
     set_paragraph_text(cells[7].paragraphs[0], "{{ kp.materials }}")
     set_paragraph_text(cells[8].paragraphs[0], "{{ kp.assessment }}")

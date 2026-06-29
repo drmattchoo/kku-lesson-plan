@@ -38,8 +38,13 @@ Some parsing / CLO-mapping / template logic can be lifted from the existing
   CLOs[{id,text,ploRefs[]}], lectures[{id,week,topic,name,durationMin,cloRefs[]}]
 - OutlineGrounding (optional): { slidesText?, brief? }   # either, both, or neither
 - LectureOutline: lectureId, totalDurationMin,
-  keyPoints[{seq,title,content,durationMin,teachingMethod,cloRefs[],materials,assessment}]
+  keyPoints[{seq,title,objective,content,durationMin,teachingMethod,cloRefs[],materials,assessment}]
   -- teachingMethod in {lecture, interactive, quiz}; 4-8 points/60min, 5-10 min each, summing to durationMin
+  -- objective MUST be a CLO-tied action statement, not a restatement of title: phrase it using
+     the action verb from the CLO(s) in cloRefs applied to this point's subject (e.g. CLO "อธิบาย
+     กลไก..." + point "ตัวรับในระบบประสาทอัตโนวัติ" -> objective "บอกชนิดของตัวรับในระบบประสาท
+     อัตโนวัติได้"). content is a numbered list of subtopics, distinct from both title and objective.
+     See the real filled example `template/แผนการสอนPT_ANS_2569.docx` for the target shape.
 - LessonPlanContext = InstructorProfile + selected Lecture + its CLOs/PLOs + edited LectureOutline
 
 ## API

@@ -19,3 +19,7 @@ def test_render_proof_produces_filled_docx(tmp_path):
     assert "CLO 1.2 :" in full_text
     assert "Sympathetic vs Parasympathetic" in full_text
     assert "60" in full_text
+    # objective must be a CLO-tied action statement, distinct from the title
+    assert "วิเคราะห์ความแตกต่างระหว่าง sympathetic และ parasympathetic ได้" in full_text
+    # content is a numbered subtopic list, distinct from title and objective
+    assert "Neurotransmitter และ receptor ของแต่ละระบบ" in full_text
