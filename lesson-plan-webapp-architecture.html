@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แผนการสอน Generator — System Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#11201f;
+    --ink-soft:#3a4d4b;
+    --paper:#f6f7f4;
+    --panel:#ffffff;
+    --line:#d9ddd6;
+    --line-soft:#e8ebe5;
+    --teal:#0e7c6f;
+    --teal-deep:#0a544b;
+    --teal-wash:#e3f0ed;
+    --amber:#c2671b;
+    --amber-wash:#fbeede;
+    --code-bg:#0f1f1d;
+    --code-ink:#cfe6e0;
+    --code-key:#7fd0c2;
+    --code-str:#e0b083;
+    --code-dim:#6f8a85;
+    --radius:10px;
+    --maxw:1120px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;line-height:1.6;
+    font-size:15.5px;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+
+  /* ---- header ---- */
+  .masthead{border-bottom:1px solid var(--line);background:var(--panel)}
+  .masthead .wrap{padding-top:48px;padding-bottom:40px}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--teal);font-weight:600;margin-bottom:18px}
+  h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,5vw,48px);
+    line-height:1.04;letter-spacing:-.02em;margin:0 0 14px;color:var(--ink)}
+  h1 .thai{font-weight:600}
+  .lede{font-size:18px;color:var(--ink-soft);max-width:60ch;margin:0}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+  .chip{font-family:'JetBrains Mono',monospace;font-size:12px;padding:6px 11px;
+    border:1px solid var(--line);border-radius:100px;color:var(--ink-soft);background:var(--paper)}
+  .chip b{color:var(--teal-deep);font-weight:600}
+
+  /* ---- section scaffold ---- */
+  section{padding:54px 0;border-bottom:1px solid var(--line-soft)}
+  .sec-num{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--teal);
+    font-weight:600;letter-spacing:.05em}
+  h2{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:26px;letter-spacing:-.01em;
+    margin:8px 0 18px;color:var(--ink)}
+  h3{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;margin:30px 0 10px}
+  p{margin:0 0 14px;max-width:74ch}
+  .sub{color:var(--ink-soft)}
+  strong{font-weight:600;color:var(--ink)}
+  code{font-family:'JetBrains Mono',monospace;font-size:.88em;background:var(--teal-wash);
+    color:var(--teal-deep);padding:1px 6px;border-radius:5px}
+
+  /* ---- diagram ---- */
+  .diagram{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px;overflow-x:auto}
+  .diagram svg{display:block;min-width:680px;width:100%;height:auto}
+
+  /* ---- code blocks ---- */
+  pre{background:var(--code-bg);color:var(--code-ink);border-radius:var(--radius);
+    padding:20px 22px;overflow-x:auto;font-family:'JetBrains Mono',monospace;
+    font-size:13px;line-height:1.62;margin:16px 0}
+  pre .k{color:var(--code-key)}
+  pre .s{color:var(--code-str)}
+  pre .c{color:var(--code-dim);font-style:italic}
+  .label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--teal);font-weight:600;margin:20px 0 6px}
+
+  /* ---- stack grid ---- */
+  .grid{display:grid;gap:14px;margin-top:18px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px}
+  .card .role{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--teal);font-weight:600}
+  .card .pick{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:17px;margin:6px 0 4px}
+  .card .why{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+  /* ---- pipeline ---- */
+  .stage{display:grid;grid-template-columns:54px 1fr;gap:20px;padding:22px 0;
+    border-top:1px solid var(--line-soft)}
+  .stage:first-of-type{border-top:none}
+  .stage .n{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;
+    color:#fff;background:var(--teal);width:46px;height:46px;border-radius:11px;
+    display:grid;place-items:center}
+  .stage.loop .n{background:var(--amber)}
+  .stage .title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;margin:2px 0 6px}
+  .stage .io{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .io span{font-family:'JetBrains Mono',monospace;font-size:11.5px;padding:4px 9px;border-radius:6px;
+    background:var(--paper);border:1px solid var(--line)}
+  .io .in b,.io .out b{font-weight:600}
+  .io .in b{color:var(--amber)}
+  .io .out b{color:var(--teal-deep)}
+  .gate{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;
+    background:var(--amber-wash);color:var(--amber);border:1px solid #eccfac;
+    padding:3px 9px;border-radius:6px;margin-top:8px;font-weight:600}
+
+  .loopwrap{border:1.5px dashed var(--amber);border-radius:var(--radius);
+    padding:6px 22px 14px;margin:18px 0;background:linear-gradient(180deg,var(--amber-wash) 0%,transparent 22%)}
+  .loopwrap .loophead{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;
+    color:var(--amber);letter-spacing:.08em;text-transform:uppercase;padding-top:14px}
+
+  /* ---- tables ---- */
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.5px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  th{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-soft);font-weight:600;border-bottom:1px solid var(--line)}
+  td code{font-size:12.5px}
+  .method{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:12px;
+    padding:2px 8px;border-radius:5px;background:var(--teal-wash);color:var(--teal-deep)}
+  .method.post{background:#e7f0ff;color:#1d4ed8}
+  .method.put{background:#fef3e2;color:#b45309}
+  .method.get{background:#e6f6ee;color:#067647}
+
+  /* ---- build modules ---- */
+  .mod{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--teal);
+    border-radius:var(--radius);padding:16px 20px;margin:12px 0}
+  .mod.reuse{border-left-color:var(--amber)}
+  .mod .mh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .mod .tag{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px;color:var(--teal-deep)}
+  .mod.reuse .tag{color:var(--amber)}
+  .mod .mt{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px}
+  .mod .contract{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-soft);
+    margin-top:8px;display:block}
+  .mod .contract .arrow{color:var(--teal);font-weight:600;padding:0 4px}
+  .mod .test{font-size:13px;color:var(--ink-soft);margin-top:8px}
+  .mod .test b{color:var(--ink);font-weight:600}
+  .reuse-note{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;
+    background:var(--amber-wash);color:var(--amber);padding:2px 8px;border-radius:5px;font-weight:600}
+
+  ul.clean{margin:6px 0 14px;padding-left:20px}
+  ul.clean li{margin:6px 0;max-width:74ch}
+
+  .callout{background:var(--teal-wash);border:1px solid #bfe0d9;border-radius:var(--radius);
+    padding:16px 20px;margin:18px 0}
+  .callout .ct{font-family:'Space Grotesk',sans-serif;font-weight:600;color:var(--teal-deep);margin-bottom:4px}
+  .callout p{margin:0;color:var(--ink-soft)}
+
+  footer{padding:40px 0 60px;color:var(--ink-soft);font-size:13px}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+  @media(max-width:760px){
+    .g3,.g2{grid-template-columns:1fr}
+    .stage{grid-template-columns:42px 1fr;gap:14px}
+    body{font-size:15px}
+  }
+  @media print{
+    body{background:#fff}
+    section{break-inside:avoid;border-color:#ddd}
+    .mod,.card,.stage,.diagram{break-inside:avoid}
+    pre{white-space:pre-wrap;border:1px solid #ccc}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">System Architecture · v1</div>
+    <h1>แผนการสอน Generator<br>web app architecture</h1>
+    <p class="lede">An instructor-facing tool that reads a course spec (มคอ-3) and lecture slides, extracts the outcome structure, and drafts a university-format lesson plan one lecture at a time — with a human review gate at every step.</p>
+    <div class="meta-row">
+      <span class="chip"><b>Input</b> มคอ-3 (+ optional slides / brief)</span>
+      <span class="chip"><b>Output</b> .docx (KKU template)</span>
+      <span class="chip"><b>LLM</b> GPT-5.5 / Sonnet (swappable)</span>
+      <span class="chip"><b>Pattern</b> extract-once · generate-in-loop</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- 1. OVERVIEW -->
+<section id="overview">
+  <div class="sec-num">01 / Overview</div>
+  <h2>What the app does, and the shape of the problem</h2>
+  <p>A course has one outcome structure (PLOs, CLOs, the CLO→PLO map) and <em>many</em> lectures. So the work splits cleanly into two phases. <strong>Extract once</strong>: parse the unorganised course document and slide deck into a single structured object the instructor can verify. <strong>Generate in a loop</strong>: for each lecture the instructor picks, draft a timed outline, let them edit it, then render the .docx. The expensive, error-prone parsing happens once; the cheap per-lecture generation repeats.</p>
+  <div class="callout">
+    <div class="ct">You already have most of phase one</div>
+    <p>Your <code>lesson-plan</code> skill already turns PPTX + มคอ into แผนการสอน with CLO mapping. The web app is the <strong>interactive shell</strong> around that logic: the extraction and template-binding code lifts almost directly out of the skill — the new work is the UI, the two review gates, and the API plumbing.</p>
+  </div>
+</section>
+
+<!-- 2. DIAGRAM -->
+<section id="diagram">
+  <div class="sec-num">02 / System diagram</div>
+  <h2>How the pieces connect</h2>
+  <p class="sub">The browser never sees the API key. All model calls and document handling stay server-side.</p>
+  <div class="diagram">
+    <svg viewBox="0 0 920 470" xmlns="http://www.w3.org/2000/svg" font-family="'JetBrains Mono', monospace">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="#0e7c6f"/>
+        </marker>
+        <marker id="arrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="#c2671b"/>
+        </marker>
+      </defs>
+
+      <!-- BROWSER column -->
+      <rect x="20" y="40" width="220" height="390" rx="12" fill="#ffffff" stroke="#d9ddd6"/>
+      <text x="130" y="68" text-anchor="middle" font-size="12" font-weight="600" fill="#0e7c6f">BROWSER · React wizard</text>
+      <g font-size="11.5" fill="#11201f">
+        <rect x="40" y="84" width="180" height="42" rx="7" fill="#f6f7f4" stroke="#e8ebe5"/>
+        <text x="130" y="103" text-anchor="middle">1 · Instructor form</text>
+        <text x="130" y="118" text-anchor="middle" font-size="9.5" fill="#3a4d4b">name, course, term</text>
+
+        <rect x="40" y="136" width="180" height="42" rx="7" fill="#f6f7f4" stroke="#e8ebe5"/>
+        <text x="130" y="155" text-anchor="middle">2 · Upload + extract</text>
+        <text x="130" y="170" text-anchor="middle" font-size="9.5" fill="#3a4d4b">มคอ-3 · slides</text>
+
+        <rect x="40" y="188" width="180" height="42" rx="7" fill="#f6f7f4" stroke="#e8ebe5"/>
+        <text x="130" y="207" text-anchor="middle">3 · Pick lecture</text>
+        <text x="130" y="222" text-anchor="middle" font-size="9.5" fill="#3a4d4b">verify topics list</text>
+
+        <rect x="40" y="240" width="180" height="42" rx="7" fill="#fbeede" stroke="#eccfac"/>
+        <text x="130" y="259" text-anchor="middle">4 · Outline editor</text>
+        <text x="130" y="274" text-anchor="middle" font-size="9.5" fill="#c2671b">edit key points / time</text>
+
+        <rect x="40" y="292" width="180" height="42" rx="7" fill="#fbeede" stroke="#eccfac"/>
+        <text x="130" y="311" text-anchor="middle">5 · Export / batch</text>
+        <text x="130" y="326" text-anchor="middle" font-size="9.5" fill="#c2671b">download .docx</text>
+      </g>
+
+      <!-- BACKEND column -->
+      <rect x="350" y="40" width="240" height="390" rx="12" fill="#ffffff" stroke="#d9ddd6"/>
+      <text x="470" y="68" text-anchor="middle" font-size="12" font-weight="600" fill="#0e7c6f">BACKEND · FastAPI</text>
+      <g font-size="11.5" fill="#11201f">
+        <rect x="368" y="84" width="204" height="38" rx="7" fill="#e3f0ed" stroke="#bfe0d9"/>
+        <text x="470" y="107" text-anchor="middle" font-weight="600">Session + state store</text>
+
+        <rect x="368" y="132" width="204" height="38" rx="7" fill="#f6f7f4" stroke="#e8ebe5"/>
+        <text x="470" y="155" text-anchor="middle">Document loaders</text>
+
+        <rect x="368" y="180" width="204" height="38" rx="7" fill="#f6f7f4" stroke="#e8ebe5"/>
+        <text x="470" y="203" text-anchor="middle">Extraction service</text>
+
+        <rect x="368" y="228" width="204" height="38" rx="7" fill="#f6f7f4" stroke="#e8ebe5"/>
+        <text x="470" y="251" text-anchor="middle">Outline service</text>
+
+        <rect x="368" y="276" width="204" height="38" rx="7" fill="#f6f7f4" stroke="#e8ebe5"/>
+        <text x="470" y="299" text-anchor="middle">Template binder · docxtpl</text>
+
+        <rect x="368" y="324" width="204" height="50" rx="7" fill="#e3f0ed" stroke="#bfe0d9"/>
+        <text x="470" y="345" text-anchor="middle" font-weight="600">LLM provider interface</text>
+        <text x="470" y="362" text-anchor="middle" font-size="9.5" fill="#0a544b">key stays here · swappable</text>
+      </g>
+
+      <!-- EXTERNAL column -->
+      <rect x="700" y="40" width="200" height="200" rx="12" fill="#ffffff" stroke="#d9ddd6"/>
+      <text x="800" y="68" text-anchor="middle" font-size="12" font-weight="600" fill="#c2671b">UNIVERSITY LLM</text>
+      <rect x="718" y="86" width="164" height="46" rx="7" fill="#fbeede" stroke="#eccfac"/>
+      <text x="800" y="109" text-anchor="middle" font-size="11.5" font-weight="600" fill="#11201f">GPT-5.5</text>
+      <text x="800" y="123" text-anchor="middle" font-size="9.5" fill="#3a4d4b">OpenAI-compatible</text>
+      <rect x="718" y="144" width="164" height="46" rx="7" fill="#fbeede" stroke="#eccfac"/>
+      <text x="800" y="167" text-anchor="middle" font-size="11.5" font-weight="600" fill="#11201f">Claude Sonnet</text>
+      <text x="800" y="181" text-anchor="middle" font-size="9.5" fill="#3a4d4b">Anthropic messages</text>
+      <text x="800" y="214" text-anchor="middle" font-size="10" fill="#3a4d4b">structured / JSON output</text>
+
+      <!-- TEMPLATE store -->
+      <rect x="700" y="276" width="200" height="98" rx="12" fill="#ffffff" stroke="#d9ddd6"/>
+      <text x="800" y="304" text-anchor="middle" font-size="12" font-weight="600" fill="#0e7c6f">TEMPLATE STORE</text>
+      <rect x="718" y="318" width="164" height="40" rx="7" fill="#e3f0ed" stroke="#bfe0d9"/>
+      <text x="800" y="338" text-anchor="middle" font-size="11" fill="#11201f">KKU .docx / .dotx</text>
+      <text x="800" y="352" text-anchor="middle" font-size="9.5" fill="#0a544b">Jinja2 placeholders</text>
+
+      <!-- arrows browser<->backend -->
+      <line x1="240" y1="105" x2="368" y2="103" stroke="#0e7c6f" stroke-width="1.6" marker-end="url(#arr)"/>
+      <line x1="240" y1="157" x2="368" y2="199" stroke="#0e7c6f" stroke-width="1.6" marker-end="url(#arr)"/>
+      <line x1="240" y1="261" x2="368" y2="247" stroke="#c2671b" stroke-width="1.6" marker-end="url(#arrA)"/>
+      <line x1="240" y1="313" x2="368" y2="295" stroke="#c2671b" stroke-width="1.6" marker-end="url(#arrA)"/>
+
+      <!-- backend -> llm -->
+      <line x1="572" y1="200" x2="700" y2="120" stroke="#c2671b" stroke-width="1.6" marker-end="url(#arrA)"/>
+      <line x1="572" y1="247" x2="700" y2="167" stroke="#c2671b" stroke-width="1.6" marker-end="url(#arrA)"/>
+      <!-- backend -> template -->
+      <line x1="572" y1="301" x2="700" y2="330" stroke="#0e7c6f" stroke-width="1.6" marker-end="url(#arr)"/>
+
+      <text x="305" y="455" font-size="10" fill="#3a4d4b">— teal: structured data &amp; files   — amber: LLM round-trips (key never leaves backend)</text>
+    </svg>
+  </div>
+</section>
+
+<!-- 3. TECH STACK -->
+<section id="stack">
+  <div class="sec-num">03 / Tech stack</div>
+  <h2>Recommended stack, and why</h2>
+  <p>The document-processing libraries you need — <code>python-pptx</code>, <code>python-docx</code>, <code>docxtpl</code> — are all Python, and they're the same ones your <code>lesson-plan</code> skill uses. Keeping the backend in Python means zero reimplementation of the hard parts.</p>
+  <div class="grid g3">
+    <div class="card"><div class="role">Frontend</div><div class="pick">React + Vite</div><p class="why">A 5-step wizard with local form state. Claude Code scaffolds this fast. Plain HTML/JS works too if you want fewer moving parts.</p></div>
+    <div class="card"><div class="role">Backend</div><div class="pick">FastAPI (Python)</div><p class="why">Async, typed request/response models via Pydantic — which double as your data schemas. Hosts all doc + LLM logic.</p></div>
+    <div class="card"><div class="role">Doc parsing</div><div class="pick">python-pptx / -docx</div><p class="why">Slides and the มคอ-3 to text + structure. Lift straight from the skill.</p></div>
+    <div class="card"><div class="role">Templating</div><div class="pick">docxtpl (Jinja2)</div><p class="why">Write Jinja tags directly inside the Word template. Loops and conditionals render the lesson-plan table natively.</p></div>
+    <div class="card"><div class="role">LLM</div><div class="pick">Provider interface</div><p class="why">One thin abstraction; OpenAI-format and Anthropic-format implementations behind it. Switch by config.</p></div>
+    <div class="card"><div class="role">State</div><div class="pick">Session JSON</div><p class="why">One JSON blob per session on disk or SQLite. No real DB needed for a single-instructor tool.</p></div>
+  </div>
+</section>
+
+<!-- 4. DATA MODEL -->
+<section id="data">
+  <div class="sec-num">04 / Data model</div>
+  <h2>The objects that flow through the pipeline</h2>
+  <p>Four schemas carry the whole app. Define them once as Pydantic models; they validate every LLM response and every API payload. This is the contract Claude Code builds against.</p>
+
+  <div class="label">Instructor profile — collected in Stage 1</div>
+  <pre><span class="k">InstructorProfile</span> {
+  name, title, department, faculty, university,
+  courseCode, courseName, academicYear, semester, section
+}</pre>
+
+  <div class="label">Extracted course — produced once in Stage 2</div>
+  <pre><span class="k">ExtractedCourse</span> {
+  courseCode, courseName,
+  PLOs: [{ id, text }],                       <span class="c">// program-level outcomes</span>
+  CLOs: [{ id, text, ploRefs: [ploId] }],     <span class="c">// course outcomes, mapped to PLOs</span>
+  lectures: [{
+    id, week, topic, name,
+    durationMin,                              <span class="c">// e.g. 60</span>
+    cloRefs: [cloId]
+  }]
+}</pre>
+
+  <div class="label">Lecture outline — generated per lecture in the loop (Stage 4)</div>
+  <pre><span class="k">LectureOutline</span> {
+  lectureId, totalDurationMin,
+  keyPoints: [{
+    seq, title, content, durationMin,         <span class="c">// 5–10 min each</span>
+    teachingMethod,                           <span class="c">// "lecture" | "interactive" | "quiz"</span>
+    cloRefs: [cloId],
+    materials, assessment
+  }]
+}</pre>
+
+  <div class="label">Render context — assembled at export</div>
+  <pre><span class="k">LessonPlanContext</span> = InstructorProfile + selected Lecture
+                  + its CLOs/PLOs + edited LectureOutline
+                  <span class="c">// → docxtpl renders this into the KKU template</span></pre>
+</section>
+
+<!-- 5. PIPELINE -->
+<section id="pipeline">
+  <div class="sec-num">05 / Pipeline</div>
+  <h2>The seven steps, with their inputs and outputs</h2>
+  <p>Each stage has a clean <span style="color:var(--amber);font-weight:600">input</span> → <span style="color:var(--teal-deep);font-weight:600">output</span> contract. Stages 4–7 form the repeatable loop body.</p>
+
+  <div class="stage">
+    <div class="n">1</div>
+    <div>
+      <div class="title">Instructor fills in their details</div>
+      <p class="sub">A simple form. These values become the lesson-plan header and aren't worth asking an LLM to guess.</p>
+      <div class="io">
+        <span class="in"><b>in</b> · keyboard</span>
+        <span class="out"><b>out</b> · InstructorProfile</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="n">2</div>
+    <div>
+      <div class="title">Upload documents · extract structure</div>
+      <p class="sub">Instructor uploads the course spec (มคอ-3) — the only required file — and optionally a slide deck. Backend parses to text, then the LLM returns the full <code>ExtractedCourse</code>: PLOs, CLOs, the CLO→PLO map, and every lecture with topic, name, duration, and CLO refs. The spec drives this; the structure comes from it.</p>
+      <div class="io">
+        <span class="in"><b>in</b> · มคอ-3.docx (+ slides.pptx, optional)</span>
+        <span class="out"><b>out</b> · ExtractedCourse (JSON)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="n">3</div>
+    <div>
+      <div class="title">Instructor selects lecture(s) to plan</div>
+      <p class="sub">The extracted lecture list is shown for review. The instructor confirms it's correct and ticks one or more lectures to generate plans for.</p>
+      <div class="io">
+        <span class="in"><b>in</b> · ExtractedCourse</span>
+        <span class="out"><b>out</b> · selected lectureId[]</span>
+      </div>
+      <span class="gate">⊳ review gate · instructor verifies extraction before any generation</span>
+    </div>
+  </div>
+
+  <div class="loopwrap">
+    <div class="loophead">↻ loop body · runs once per selected lecture</div>
+
+    <div class="stage loop">
+      <div class="n">4</div>
+      <div>
+        <div class="title">LLM suggests a timed outline</div>
+        <p class="sub">For the chosen lecture, the model proposes <strong>4–8 key points</strong> for a 60-min slot (5–10 min each, summing to the duration), each with suggested content and a <strong>teaching method</strong> — lecture, interactive, or quiz — and the CLOs it serves. Grounding is optional and adaptive: <strong>slides</strong> ground it in real material, a short <strong>brief</strong> grounds it in the instructor's intent, and with neither it works from the topic + CLOs.</p>
+        <div class="io">
+          <span class="in"><b>in</b> · lecture + CLO context (+ slides / brief, optional)</span>
+          <span class="out"><b>out</b> · LectureOutline (draft)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage loop">
+      <div class="n">5</div>
+      <div>
+        <div class="title">Instructor edits the outline</div>
+        <p class="sub">Editable table: reorder, retitle, adjust minutes, change teaching method, add or drop key points. A live check confirms the minutes still sum to the lecture duration.</p>
+        <div class="io">
+          <span class="in"><b>in</b> · draft LectureOutline</span>
+          <span class="out"><b>out</b> · approved LectureOutline</span>
+        </div>
+        <span class="gate">⊳ review gate · nothing exports until the instructor approves</span>
+      </div>
+    </div>
+
+    <div class="stage loop">
+      <div class="n">6</div>
+      <div>
+        <div class="title">Render into the KKU .docx template</div>
+        <p class="sub">Backend assembles <code>LessonPlanContext</code> and feeds it to docxtpl. Jinja tags in the template render the header, the CLO/PLO mapping table, and the timed key-point table. Out comes a finished แผนการสอน.</p>
+        <div class="io">
+          <span class="in"><b>in</b> · LessonPlanContext</span>
+          <span class="out"><b>out</b> · lesson-plan.docx</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage loop">
+      <div class="n">7</div>
+      <div>
+        <div class="title">Deliver — single file or batched ZIP</div>
+        <p class="sub">Download the one lecture, or — because Stages 4–6 are a loop — batch every selected lecture and return a ZIP of plans for the whole course.</p>
+        <div class="io">
+          <span class="in"><b>in</b> · rendered .docx files</span>
+          <span class="out"><b>out</b> · download / .zip</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. API -->
+<section id="api">
+  <div class="sec-num">06 / API contracts</div>
+  <h2>Backend endpoints</h2>
+  <p>Stateless from the browser's side except for a <code>sessionId</code>. The key never appears in any of these.</p>
+  <table>
+    <thead><tr><th>Method</th><th>Path</th><th>Body / params</th><th>Returns</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method post">POST</span></td><td><code>/api/session</code></td><td>InstructorProfile</td><td><code>{ sessionId }</code></td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/api/extract</code></td><td>multipart: มคอ + slides</td><td>ExtractedCourse</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/api/course/{sid}</code></td><td>—</td><td>ExtractedCourse</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/api/outline</code></td><td><code>{ lectureId }</code></td><td>LectureOutline (draft)</td></tr>
+      <tr><td><span class="method put">PUT</span></td><td><code>/api/outline/{lid}</code></td><td>edited LectureOutline</td><td><code>{ ok, totalMin }</code></td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/api/export</code></td><td><code>{ lectureId }</code></td><td>.docx (stream)</td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/api/export/batch</code></td><td><code>{ lectureIds[] }</code></td><td>.zip — the loop</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 7. LLM ABSTRACTION -->
+<section id="llm">
+  <div class="sec-num">07 / Model abstraction</div>
+  <h2>One interface, two providers</h2>
+  <p>GPT-5.5 and Claude Sonnet speak different request formats and return structured output differently (OpenAI JSON-schema response format vs. Anthropic tool-use). Hide that behind one interface so the rest of the app never knows or cares which model ran.</p>
+  <pre><span class="k">class</span> LLMProvider:
+    <span class="k">def</span> extract_course(self, mco_text, slides_text) <span class="k">-></span> ExtractedCourse: ...
+    <span class="k">def</span> generate_outline(self, lecture, slides_text, clo_ctx) <span class="k">-></span> LectureOutline: ...
+
+<span class="c"># two implementations behind the same interface</span>
+OpenAIProvider     <span class="c"># GPT-5.5  · response_format = json_schema</span>
+AnthropicProvider  <span class="c"># Sonnet   · forced tool-use for structured output</span>
+
+<span class="k">def</span> get_provider(cfg) <span class="k">-></span> LLMProvider:
+    <span class="k">return</span> {<span class="s">"gpt"</span>: OpenAIProvider, <span class="s">"claude"</span>: AnthropicProvider}[cfg.model](cfg.api_key)</pre>
+  <p class="sub">Both methods <strong>must</strong> return JSON validated against the Pydantic schemas. On a validation failure, retry once with the error appended to the prompt before surfacing it to the instructor.</p>
+
+  <h3>Prompt sketches</h3>
+  <p class="sub" style="margin-bottom:6px"><strong>Extraction</strong> — "From this มคอ-3 and slide deck, extract PLOs, CLOs, the CLO→PLO mapping, and every lecture (topic, name, duration, CLO refs). Return only JSON matching the ExtractedCourse schema."</p>
+  <p class="sub"><strong>Outline</strong> — "For lecture «{name}» ({duration} min) produce 4–8 key points of 5–10 min each, summing to {duration}. Per point: title, brief content, a teaching method (lecture / interactive / quiz), and CLO refs. If grounding material (slides or a brief) is provided, base the content on it; otherwise derive it from the lecture topic and CLOs. Return only JSON matching LectureOutline."</p>
+</section>
+
+<!-- 8. TEMPLATE -->
+<section id="template">
+  <div class="sec-num">08 / Template binding</div>
+  <h2>Where data meets the Word template</h2>
+  <p>With docxtpl you put Jinja2 tags directly into the KKU <code>.docx</code> you already have. No layout code — the template <em>is</em> the layout. The binder just hands it a context dict.</p>
+  <pre><span class="c">{# header #}</span>
+{{ instructor.name }} — {{ course.courseCode }} {{ course.courseName }}
+{{ instructor.academicYear }} / ภาคเรียน {{ instructor.semester }}
+
+<span class="c">{# CLO → PLO mapping table #}</span>
+{% for clo in lecture.clos %}
+  {{ clo.id }} | {{ clo.text }} | {{ clo.ploRefs | join(", ") }}
+{% endfor %}
+
+<span class="c">{# timed key-point table — the body of the แผนการสอน #}</span>
+{% for kp in outline.keyPoints %}
+  {{ kp.seq }} | {{ kp.title }} | {{ kp.durationMin }} นาที | {{ kp.teachingMethod }}
+{% endfor %}</pre>
+  <div class="callout">
+    <div class="ct">Reuse point</div>
+    <p>If your <code>lesson-plan</code> skill already renders แผนการสอน into a template, this whole section may be a copy-paste. The web app's only change is sourcing the context from the edited <code>LectureOutline</code> instead of generating it inline.</p>
+  </div>
+</section>
+
+<!-- 9. SECURITY -->
+<section id="security">
+  <div class="sec-num">09 / Security &amp; config</div>
+  <h2>Keep the key on the server</h2>
+  <ul class="clean">
+    <li>The university API key lives in a server-side <code>.env</code> — never shipped to the browser, never in client JS, never in a response body.</li>
+    <li>Model choice and key are read once at startup into a config object; the provider factory reads from it. Swapping GPT-5.5 ↔ Sonnet is a one-line config change, no redeploy of the frontend.</li>
+    <li>Uploaded files are processed in a temp dir and discarded after extraction; only the structured <code>ExtractedCourse</code> JSON persists in the session.</li>
+    <li>Rate-limit the <code>/extract</code> and <code>/outline</code> routes — they're the only ones that cost money.</li>
+  </ul>
+</section>
+
+<!-- 10. BUILD PLAN -->
+<section id="build">
+  <div class="sec-num">10 / Build sequence</div>
+  <h2>The loop Claude Code can process</h2>
+  <p>Eleven self-contained modules, each with an input → output contract and a one-line test. Build and verify them in order; every module is small enough to hand to Claude Code as a single task. Amber modules are where your existing skill carries most of the weight.</p>
+
+  <div class="mod reuse">
+    <div class="mh"><span class="tag">M0</span><span class="mt">Scaffold + config</span><span class="reuse-note">new</span></div>
+    <span class="contract">env (API_KEY, MODEL) <span class="arrow">→</span> config object · provider factory stub</span>
+    <span class="test"><b>Test:</b> server boots, <code>/health</code> returns the active model name.</span>
+  </div>
+
+  <div class="mod">
+    <div class="mh"><span class="tag">M1</span><span class="mt">LLM provider interface</span></div>
+    <span class="contract">prompt <span class="arrow">→</span> validated JSON · OpenAI + Anthropic impls</span>
+    <span class="test"><b>Test:</b> both providers return a schema-valid object for a trivial prompt; factory switches by config.</span>
+  </div>
+
+  <div class="mod reuse">
+    <div class="mh"><span class="tag">M2</span><span class="mt">Document loaders</span><span class="reuse-note">lift from skill</span></div>
+    <span class="contract">.pptx / .docx <span class="arrow">→</span> structured text</span>
+    <span class="test"><b>Test:</b> a real มคอ + deck parse to non-empty text with slide/section boundaries intact.</span>
+  </div>
+
+  <div class="mod reuse">
+    <div class="mh"><span class="tag">M3</span><span class="mt">Extraction service</span><span class="reuse-note">lift from skill</span></div>
+    <span class="contract">doc text <span class="arrow">→</span> ExtractedCourse</span>
+    <span class="test"><b>Test:</b> output validates; CLO→PLO refs all resolve; lecture count matches the deck.</span>
+  </div>
+
+  <div class="mod">
+    <div class="mh"><span class="tag">M4</span><span class="mt">Instructor form (Stage 1)</span></div>
+    <span class="contract">UI inputs <span class="arrow">→</span> POST /api/session</span>
+    <span class="test"><b>Test:</b> submitting returns a sessionId; required fields validated client-side.</span>
+  </div>
+
+  <div class="mod">
+    <div class="mh"><span class="tag">M5</span><span class="mt">Upload + topic list (Stages 2–3)</span></div>
+    <span class="contract">file upload <span class="arrow">→</span> /api/extract <span class="arrow">→</span> selectable lecture list</span>
+    <span class="test"><b>Test:</b> uploaded files yield a checkbox list of lectures the instructor can confirm.</span>
+  </div>
+
+  <div class="mod reuse">
+    <div class="mh"><span class="tag">M6</span><span class="mt">Outline service (Stage 4)</span><span class="reuse-note">partial reuse</span></div>
+    <span class="contract">lectureId <span class="arrow">→</span> LectureOutline draft</span>
+    <span class="test"><b>Test:</b> 4–8 key points; minutes sum to lecture duration; each method ∈ {lecture, interactive, quiz}.</span>
+  </div>
+
+  <div class="mod">
+    <div class="mh"><span class="tag">M7</span><span class="mt">Outline editor (Stage 5)</span></div>
+    <span class="contract">draft <span class="arrow">→</span> editable table <span class="arrow">→</span> PUT /api/outline</span>
+    <span class="test"><b>Test:</b> add/remove/reorder works; live total updates; warns if minutes ≠ duration.</span>
+  </div>
+
+  <div class="mod reuse">
+    <div class="mh"><span class="tag">M8</span><span class="mt">Template binder (Stage 6)</span><span class="reuse-note">lift from skill</span></div>
+    <span class="contract">LessonPlanContext <span class="arrow">→</span> .docx</span>
+    <span class="test"><b>Test:</b> rendered file opens in Word; header, CLO/PLO table, and key-point table populate.</span>
+  </div>
+
+  <div class="mod">
+    <div class="mh"><span class="tag">M9</span><span class="mt">Batch loop export (Stage 7)</span></div>
+    <span class="contract">lectureId[] <span class="arrow">→</span> iterate M6→M8 <span class="arrow">→</span> .zip</span>
+    <span class="test"><b>Test:</b> N selected lectures produce N .docx files in one ZIP.</span>
+  </div>
+
+  <div class="mod">
+    <div class="mh"><span class="tag">M10</span><span class="mt">Hardening</span></div>
+    <span class="contract">retries · validation surfacing · session persistence · rate limits</span>
+    <span class="test"><b>Test:</b> a malformed LLM response retries once then shows a clear message; refresh keeps state.</span>
+  </div>
+</section>
+
+<!-- 11. FILE TREE -->
+<section id="tree">
+  <div class="sec-num">11 / Project layout</div>
+  <h2>Suggested folder structure</h2>
+  <pre>lesson-plan-app/
+├─ <span class="k">backend/</span>
+│  ├─ main.py                 <span class="c"># FastAPI app + routes (M4,M5,M7,M9)</span>
+│  ├─ config.py               <span class="c"># env → config (M0)</span>
+│  ├─ schemas.py              <span class="c"># Pydantic: the four data models (§4)</span>
+│  ├─ llm/
+│  │  ├─ base.py              <span class="c"># LLMProvider interface (M1)</span>
+│  │  ├─ openai_provider.py   <span class="c"># GPT-5.5</span>
+│  │  └─ anthropic_provider.py<span class="c"># Sonnet</span>
+│  ├─ services/
+│  │  ├─ loaders.py           <span class="c"># pptx/docx → text (M2)</span>
+│  │  ├─ extract.py           <span class="c"># → ExtractedCourse (M3)</span>
+│  │  ├─ outline.py           <span class="c"># → LectureOutline (M6)</span>
+│  │  └─ render.py            <span class="c"># docxtpl binder (M8)</span>
+│  └─ prompts/                <span class="c"># extraction + outline prompt text</span>
+├─ <span class="k">frontend/</span>
+│  └─ src/
+│     ├─ App.jsx              <span class="c"># 5-step wizard shell</span>
+│     └─ steps/               <span class="c"># Form, Upload, Pick, Editor, Export</span>
+├─ <span class="k">templates/</span>
+│  └─ kku_lesson_plan.docx    <span class="c"># your Jinja-tagged template</span>
+└─ .env                       <span class="c"># API_KEY, MODEL — never committed</span></pre>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>แผนการสอน Generator · architecture v1</span>
+    <span>extract once → review → generate in loop → review → render</span>
+  </div>
+</footer>
+
+</body>
+</html>

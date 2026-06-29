@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แผนการสอน Generator — Project Handoff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#11201f; --ink-soft:#3a4d4b; --paper:#f6f7f4; --panel:#ffffff;
+    --line:#d9ddd6; --line-soft:#e8ebe5;
+    --teal:#0e7c6f; --teal-deep:#0a544b; --teal-wash:#e3f0ed;
+    --amber:#c2671b; --amber-wash:#fbeede;
+    --code-bg:#0f1f1d; --code-ink:#cfe6e0; --code-dim:#6f8a85;
+    --radius:10px; --maxw:1020px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;line-height:1.6;font-size:15.5px;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+
+  .masthead{border-bottom:1px solid var(--line);background:var(--panel)}
+  .masthead .wrap{padding:46px 28px 38px}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--teal);font-weight:600;margin-bottom:16px}
+  h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(28px,4.5vw,42px);
+    line-height:1.06;letter-spacing:-.02em;margin:0 0 12px}
+  .lede{font-size:17px;color:var(--ink-soft);max-width:62ch;margin:0}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .legend span{display:inline-flex;align-items:center;gap:7px;color:var(--ink-soft)}
+  .dot{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .dot.t{background:var(--teal)} .dot.a{background:var(--amber)}
+
+  section{padding:48px 0;border-bottom:1px solid var(--line-soft)}
+  .sec-num{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--teal);font-weight:600}
+  h2{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:24px;letter-spacing:-.01em;margin:8px 0 6px}
+  .sec-sub{color:var(--ink-soft);margin:0 0 22px;max-width:70ch}
+  h3{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;letter-spacing:.02em;
+    margin:26px 0 12px;color:var(--teal-deep);text-transform:uppercase;font-size:12.5px;
+    font-family:'JetBrains Mono',monospace;letter-spacing:.1em}
+
+  /* checklist */
+  .step{display:grid;grid-template-columns:26px 1fr;gap:14px;padding:13px 0;border-top:1px solid var(--line-soft)}
+  .step:first-of-type{border-top:none}
+  .box{width:20px;height:20px;border:2px solid var(--amber);border-radius:5px;margin-top:2px}
+  .step .t{font-weight:600;margin:0 0 2px}
+  .step .d{color:var(--ink-soft);font-size:14px;margin:0;max-width:72ch}
+  .step .d code{font-family:'JetBrains Mono',monospace;font-size:12.5px;background:var(--amber-wash);
+    color:var(--amber);padding:1px 6px;border-radius:5px}
+  .flag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:600;
+    padding:2px 8px;border-radius:5px;margin-left:6px;vertical-align:middle}
+  .flag.gate{background:var(--teal-wash);color:var(--teal-deep)}
+  .flag.ask{background:var(--amber-wash);color:var(--amber)}
+
+  /* prepare cards */
+  .pcard{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--amber);
+    border-radius:var(--radius);padding:15px 18px;margin:11px 0}
+  .pcard .pn{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--amber)}
+  .pcard .pt{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;margin:3px 0 4px}
+  .pcard p{margin:0;color:var(--ink-soft);font-size:14px;max-width:74ch}
+
+  /* file tree */
+  .tree{background:var(--code-bg);color:var(--code-ink);border-radius:var(--radius);
+    padding:22px 24px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.85;overflow-x:auto;margin:8px 0 0}
+  .tree .c{color:var(--code-dim)}
+  .tree .ready{color:#7fd0c2}
+  .tree .prep{color:#e0b083}
+  .tag{font-size:10.5px;font-weight:600;padding:1px 7px;border-radius:4px;margin-left:8px}
+  .tag.ready{background:rgba(127,208,194,.16);color:#7fd0c2}
+  .tag.prep{background:rgba(224,176,131,.16);color:#e0b083}
+
+  .keyrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+  .keybox{border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;background:var(--panel)}
+  .keybox.t{border-left:3px solid var(--teal)} .keybox.a{border-left:3px solid var(--amber)}
+  .keybox b{font-family:'Space Grotesk',sans-serif}
+  .keybox p{margin:4px 0 0;font-size:13.5px;color:var(--ink-soft)}
+
+  .note{background:var(--teal-wash);border:1px solid #bfe0d9;border-radius:var(--radius);padding:15px 18px;margin:20px 0 0}
+  .note .nt{font-family:'Space Grotesk',sans-serif;font-weight:600;color:var(--teal-deep);margin-bottom:3px}
+  .note p{margin:0;color:var(--ink-soft);font-size:14px}
+
+  footer{padding:34px 0 56px;color:var(--ink-soft);font-size:13px;font-family:'JetBrains Mono',monospace}
+
+  @media(max-width:720px){ .keyrow{grid-template-columns:1fr} }
+  @media print{ body{background:#fff} section{break-inside:avoid} .tree{white-space:pre-wrap} }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Project handoff</div>
+    <h1>What you do · what to prepare ·<br>what to hand Claude Code</h1>
+    <p class="lede">The whole plan on one page: the steps only you can do, the materials you bring, and the exact set of files that should sit in the repo before Claude Code builds the KKU lesson-plan generator.</p>
+    <div class="legend">
+      <span><i class="dot t"></i> ready — already made for you</span>
+      <span><i class="dot a"></i> you prepare / you decide</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- 1. STEPS -->
+<section>
+  <div class="sec-num">01 / The steps you do</div>
+  <h2>Your side, start to finish</h2>
+  <p class="sec-sub">Claude Code writes the code. These are the things it can't do for you — decisions, accounts, materials, and the two checks where a human eye is the whole point.</p>
+
+  <h3>Before you open Claude Code</h3>
+  <div class="step"><div class="box"></div><div>
+    <p class="t">Build one clean official KKU lesson-plan template</p>
+    <p class="d">One tidy <code>.docx</code> in the real KKU แผนการสอน format, plus a written list of every field it must contain. Decide one detail: is the timed table a real Word table, or laid out as text? It changes how the tags are written.</p>
+  </div></div>
+  <div class="step"><div class="box"></div><div>
+    <p class="t">Collect 2–3 real, messy course specs</p>
+    <p class="d">The actual hectic มคอ-3 files, not tidy examples — plus a sample slide deck. These are what extraction gets built and tested against, so it survives the real mess.</p>
+  </div></div>
+  <div class="step"><div class="box"></div><div>
+    <p class="t">Sort out KKU Google sign-in <span class="flag ask">ask IT first</span></p>
+    <p class="d">Confirm with the Office of Digital Technology whether faculty <code>@kku.ac.th</code> accounts sign in via Google or Microsoft. Then create the sign-in app (Google Cloud, or Microsoft if that's the answer) restricted to your faculty domain. This is your own free project — KKU doesn't provide it.</p>
+  </div></div>
+  <div class="step"><div class="box"></div><div>
+    <p class="t">Get the university API key + pick the runtime model</p>
+    <p class="d">The key the deployed app uses to call <code>GPT-5.5</code> or <code>Sonnet</code> for extraction and outlines. Separate from your Claude Code subscription.</p>
+  </div></div>
+  <div class="step"><div class="box"></div><div>
+    <p class="t">Decide your Claude plan for the build</p>
+    <p class="d">Pro has no Opus, so the hard extraction module falls back to Sonnet. Max — or authenticating Claude Code with an API key — unlocks Opus and lets the build run past usage walls.</p>
+  </div></div>
+  <div class="step"><div class="box"></div><div>
+    <p class="t">Drop your prepared files into the repo</p>
+    <p class="d">Put the template, the sample specs, and your <code>.env</code> alongside the ready-made files (see section 03), then open Claude Code.</p>
+  </div></div>
+
+  <h3>During the build — one phase per window</h3>
+  <div class="step"><div class="box"></div><div>
+    <p class="t">Build module by module, commit when green</p>
+    <p class="d">Open Claude Code (it reads <code>CLAUDE.md</code> + <code>PROGRESS.md</code> automatically). Tell it: "Do Mx per the contract. Test first. Stop when green." Commit each green module. End every window on a green commit and a <code>PROGRESS.md</code> update — that's what makes a usage reset cost you nothing.</p>
+  </div></div>
+  <div class="step"><div class="box"></div><div>
+    <p class="t">Stop at the template gate <span class="flag gate">human check</span></p>
+    <p class="d">After the template-render module, open the produced <code>.docx</code> in Word. Is it a real, acceptable KKU lesson plan? Fix the template and repeat until yes. Build nothing else until this passes.</p>
+  </div></div>
+  <div class="step"><div class="box"></div><div>
+    <p class="t">Stop at the extraction gate <span class="flag gate">human check</span></p>
+    <p class="d">Run extraction on your real messy specs. The test isn't "did the AI get it perfect" — it's "can I fix the wrong rows in under a minute?" The correction screen carries the mess.</p>
+  </div></div>
+  <div class="step"><div class="box"></div><div>
+    <p class="t">Let the loop batch the boring middle (optional)</p>
+    <p class="d">Once past the design-heavy modules, <code>build-loop.sh</code> can run the repetitive ones unattended in a window — point it at an API key if you want it to push past a usage wall.</p>
+  </div></div>
+
+  <h3>At the end</h3>
+  <div class="step"><div class="box"></div><div>
+    <p class="t">Deploy <span class="flag ask">ask IT</span></p>
+    <p class="d">A managed host (Render / Railway / Fly.io) is the easy path — or hand it to KKU IT if they want it on university infrastructure, which is likely given the course material and key involved.</p>
+  </div></div>
+</section>
+
+<!-- 2. PREPARE -->
+<section>
+  <div class="sec-num">02 / Files &amp; materials you prepare</div>
+  <h2>What only you can bring</h2>
+  <p class="sec-sub">Three files and a couple of accounts. Everything else is generated by Claude Code or already made for you.</p>
+
+  <div class="pcard">
+    <div class="pn">A</div>
+    <div class="pt">templates/kku_lesson_plan.docx</div>
+    <p>Your clean official KKU template. You provide the base document and field list; Claude Code adds the fill-in tags. This is the canonical mould every lesson plan is poured into.</p>
+  </div>
+  <div class="pcard">
+    <div class="pn">B</div>
+    <div class="pt">tests/fixtures/ — real course specs + a slide deck</div>
+    <p>2–3 genuinely messy มคอ-3 files and one sample .pptx. Used to build and prove the extraction against reality, not against a tidy ideal.</p>
+  </div>
+  <div class="pcard">
+    <div class="pn">C</div>
+    <div class="pt">.env — your secrets (never committed)</div>
+    <p>University API key + chosen model, and the Google sign-in client ID / secret. Add it to <code style="background:var(--amber-wash);color:var(--amber);padding:1px 6px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:12.5px">.gitignore</code> so it never lands in git.</p>
+  </div>
+  <div class="pcard">
+    <div class="pn">D</div>
+    <div class="pt">Two accounts set up (not files)</div>
+    <p>The Google (or Microsoft) sign-in app restricted to <code>@kku.ac.th</code>, and your Claude plan / API-key decision for the build.</p>
+  </div>
+</section>
+
+<!-- 3. REPO -->
+<section>
+  <div class="sec-num">03 / The repo you hand to Claude Code</div>
+  <h2>Everything in place at handoff</h2>
+  <p class="sec-sub">Drop the ready-made files (teal) next to the ones you prepared (amber). The moment Claude Code opens this folder it has the full plan, the contracts, and the state tracker.</p>
+
+  <div class="keyrow">
+    <div class="keybox t">
+      <b>CLAUDE.md</b>
+      <p>The brain of the handoff — read free at the start of every session. Holds the schemas, API, build order, and conventions. Keep it tight.</p>
+    </div>
+    <div class="keybox t">
+      <b>PROGRESS.md</b>
+      <p>The state tracker. Read it first each window, update it last. This is what carries you across every usage reset.</p>
+    </div>
+    <div class="keybox t">
+      <b>build-loop.sh</b>
+      <p>Optional headless builder for the repetitive modules, with the per-module model choices baked in (Haiku / Sonnet / Opus).</p>
+    </div>
+    <div class="keybox t">
+      <b>docs/architecture.html</b>
+      <p>The full reference — system diagram, data model, pipeline, template binding. Where Claude Code looks up any detail.</p>
+    </div>
+  </div>
+
+  <div class="tree">lesson-plan-app/
+├─ <span class="ready">CLAUDE.md</span><span class="tag ready">ready</span>              <span class="c"># build context, auto-read every session</span>
+├─ <span class="ready">PROGRESS.md</span><span class="tag ready">ready</span>            <span class="c"># state tracker, update each window</span>
+├─ <span class="ready">build-loop.sh</span><span class="tag ready">ready</span>          <span class="c"># optional headless build loop</span>
+├─ <span class="prep">.env</span><span class="tag prep">you prepare</span>                 <span class="c"># API key, model, Google secret — gitignored</span>
+├─ .gitignore                <span class="c"># Claude Code creates</span>
+├─ docs/
+│  └─ <span class="ready">architecture.html</span><span class="tag ready">ready</span>     <span class="c"># full reference doc</span>
+├─ templates/
+│  └─ <span class="prep">kku_lesson_plan.docx</span><span class="tag prep">you prepare</span>  <span class="c"># your KKU template</span>
+├─ tests/
+│  └─ fixtures/
+│     ├─ <span class="prep">spec_1.docx … spec_3.docx</span><span class="tag prep">you prepare</span>  <span class="c"># real messy มคอ-3</span>
+│     └─ <span class="prep">sample_slides.pptx</span><span class="tag prep">you prepare</span>
+├─ backend/                  <span class="c"># Claude Code builds (FastAPI)</span>
+│  ├─ main.py · config.py · schemas.py
+│  ├─ llm/  · services/  · prompts/
+│  └─ ...
+└─ frontend/                 <span class="c"># Claude Code builds (React + Vite)</span>
+   └─ src/  ...</div>
+
+  <div class="note">
+    <div class="nt">In one line</div>
+    <p>You bring four things — a clean template, real messy specs, a sign-in app, and an API key. You drop them next to the four ready files. Then you build one module per window, stopping only at the two human checks. Everything in <span style="color:var(--teal-deep);font-weight:600">teal</span> is done; everything in <span style="color:var(--amber);font-weight:600">amber</span> is yours.</p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">แผนการสอน Generator · handoff sheet · prepare → drop in → build module by module → deploy</div>
+</footer>
+
+</body>
+</html>
