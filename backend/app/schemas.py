@@ -16,6 +16,7 @@ class InstructorProfile(BaseModel):
     academicYear: str
     semester: str
     section: str = ""
+    learners: str = ""
 
 
 class PLO(BaseModel):
@@ -73,3 +74,17 @@ class OutlineRequest(BaseModel):
     sid: str
     lectureId: str
     brief: Optional[str] = None
+
+
+class ExportRequest(BaseModel):
+    sid: str
+    lectureId: str
+    sessionDate: str = ""
+    sessionTime: str = ""
+
+
+class BatchExportRequest(BaseModel):
+    sid: str
+    lectureIds: List[str]
+    sessionDate: str = ""
+    sessionTime: str = ""
