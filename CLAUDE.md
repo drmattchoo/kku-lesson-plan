@@ -45,6 +45,11 @@ Some parsing / CLO-mapping / template logic can be lifted from the existing
      กลไก..." + point "ตัวรับในระบบประสาทอัตโนวัติ" -> objective "บอกชนิดของตัวรับในระบบประสาท
      อัตโนวัติได้"). content is a numbered list of subtopics, distinct from both title and objective.
      See the real filled example `template/แผนการสอนPT_ANS_2569.docx` for the target shape.
+  -- cloRefs is just CLO ids; the table's "ผลการเรียนรู้" column is COMPUTED at render time
+     (app.template_binder._format_lo_refs) by looking each id up against CLOs[].ploRefs and
+     rendering "PLO{x}/CLO{y}" pairs, one per line — e.g. cloRefs ["1","2"] with CLO1->PLO4 and
+     CLO2->PLO4 renders "PLO4/CLO1\nPLO4/CLO2". Bare "CLO{y}" if that CLO has no ploRefs; "-" if
+     cloRefs is empty. Never author this column's text directly. See `template/แผนการสอนPS_ANS_2569.docx`.
 - LessonPlanContext = InstructorProfile + selected Lecture + its CLOs/PLOs + edited LectureOutline
 
 ## API

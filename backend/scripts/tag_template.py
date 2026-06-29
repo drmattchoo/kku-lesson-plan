@@ -37,10 +37,10 @@ def tag_paragraphs(doc: docx.document.Document) -> None:
     # PLO/CLO block: each {%p for/endfor%} tag must be ALONE in its own paragraph
     # (docxtpl repeats whatever paragraphs sit between the open and close tags).
     p[10].insert_paragraph_before("{%p for plo in PLOs %}", style=p[10].style)
-    set_paragraph_text(p[10], "PLO {{ plo.id }} : {{ plo.text }}")
+    set_paragraph_text(p[10], "PLO{{ plo.id }} : {{ plo.text }}")
     p[11].insert_paragraph_before("{%p endfor %}", style=p[10].style)
     p[11].insert_paragraph_before("{%p for clo in CLOs %}", style=p[10].style)
-    set_paragraph_text(p[11], "CLO {{ clo.id }} : {{ clo.text }}")
+    set_paragraph_text(p[11], "CLO{{ clo.id }} : {{ clo.text }}")
     p[12].insert_paragraph_before("{%p endfor %}", style=p[10].style)
     remove_paragraph(p[12])
 

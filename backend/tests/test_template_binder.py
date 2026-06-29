@@ -15,11 +15,14 @@ def test_render_proof_produces_filled_docx(tmp_path):
 
     assert "Human Physiology" in full_text
     assert "Autonomic Nervous System" in full_text
-    assert "PLO 1 :" in full_text
-    assert "CLO 1.2 :" in full_text
+    assert "PLO4 :" in full_text
+    assert "CLO2 :" in full_text
     assert "Sympathetic vs Parasympathetic" in full_text
     assert "60" in full_text
     # objective must be a CLO-tied action statement, distinct from the title
     assert "วิเคราะห์ความแตกต่างระหว่าง sympathetic และ parasympathetic ได้" in full_text
     # content is a numbered subtopic list, distinct from title and objective
     assert "Neurotransmitter และ receptor ของแต่ละระบบ" in full_text
+    # ผลการเรียนรู้ column is computed PLO/CLO pairs (PLO4/CLO1), not bare CLO ids
+    assert "PLO4/CLO1" in full_text
+    assert "PLO4/CLO2" in full_text
