@@ -67,3 +67,9 @@ class LectureOutline(BaseModel):
     lectureId: str
     totalDurationMin: int
     keyPoints: List[KeyPoint]
+
+
+class OutlineRequest(BaseModel):
+    sid: str
+    lectureId: str
+    brief: Optional[str] = None

@@ -374,6 +374,218 @@ function CorrectionScreen({ sessionId, initialCourse, onLectureChosen }) {
   )
 }
 
+const TEACHING_METHODS = ['lecture', 'interactive', 'quiz']
+
+function OutlineEditor({ sessionId, lecture, onSaved }) {
+  const [brief, setBrief] = useState('')
+  const [outline, setOutline] = useState(null)
+  const [generating, setGenerating] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [savedTotal, setSavedTotal] = useState(null)
+  const [error, setError] = useState('')
+
+  const liveTotal = outline
+    ? outline.keyPoints.reduce((sum, kp) => sum + (Number(kp.durationMin) || 0), 0)
+    : 0
+
+  async function handleGenerate() {
+    setGenerating(true)
+    setError('')
+    try {
+      const resp = await fetch('/api/outline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sid: sessionId, lectureId: lecture.id, brief: brief || null }),
+        credentials: 'include',
+      })
+      await parseErrorOrThrow(resp)
+      const data = await resp.json()
+      setOutline(data)
+      setSavedTotal(null)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setGenerating(false)
+    }
+  }
+
+  function updateKeyPoint(index, field, value) {
+    const keyPoints = outline.keyPoints.slice()
+    keyPoints[index] = { ...keyPoints[index], [field]: value }
+    setOutline({ ...outline, keyPoints })
+  }
+
+  function moveKeyPoint(index, direction) {
+    const keyPoints = outline.keyPoints.slice()
+    const target = index + direction
+    if (target < 0 || target >= keyPoints.length) return
+    ;[keyPoints[index], keyPoints[target]] = [keyPoints[target], keyPoints[index]]
+    keyPoints.forEach((kp, i) => (kp.seq = i + 1))
+    setOutline({ ...outline, keyPoints })
+  }
+
+  function removeKeyPoint(index) {
+    const keyPoints = outline.keyPoints.filter((_, i) => i !== index)
+    keyPoints.forEach((kp, i) => (kp.seq = i + 1))
+    setOutline({ ...outline, keyPoints })
+  }
+
+  function addKeyPoint() {
+    const keyPoints = [
+      ...outline.keyPoints,
+      {
+        seq: outline.keyPoints.length + 1,
+        title: '',
+        objective: '',
+        content: '',
+        durationMin: 10,
+        teachingMethod: 'lecture',
+        cloRefs: [],
+        materials: '',
+        assessment: '',
+      },
+    ]
+    setOutline({ ...outline, keyPoints })
+  }
+
+  async function handleSave() {
+    setSaving(true)
+    setError('')
+    try {
+      const payload = { ...outline, totalDurationMin: liveTotal }
+      const resp = await fetch(`/api/outline/${lecture.id}?sid=${sessionId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        credentials: 'include',
+      })
+      await parseErrorOrThrow(resp)
+      const data = await resp.json()
+      setSavedTotal(data.totalMin)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (!outline) {
+    return (
+      <div className="outline-editor">
+        <h2>สร้างแผนการสอน: {lecture.topic}</h2>
+        <label>
+          ข้อมูลเพิ่มเติม / ความตั้งใจของผู้สอน (ไม่บังคับ)
+          <textarea value={brief} onChange={(e) => setBrief(e.target.value)} rows={3} />
+        </label>
+        {error && <p className="form-error">{error}</p>}
+        <button type="button" onClick={handleGenerate} disabled={generating}>
+          {generating ? 'กำลังสร้าง…' : 'สร้างแผนการสอน'}
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="outline-editor">
+      <h2>แก้ไขแผนการสอน: {lecture.topic}</h2>
+      <p className="hint">
+        เวลารวมปัจจุบัน: {liveTotal} นาที
+        {lecture.durationMin ? ` (กำหนดไว้ ${lecture.durationMin} นาที)` : ''}
+      </p>
+
+      {outline.keyPoints.map((kp, i) => (
+        <div className="keypoint-card" key={i}>
+          <div className="keypoint-header">
+            <strong>ลำดับที่ {kp.seq}</strong>
+            <div className="keypoint-actions">
+              <button type="button" onClick={() => moveKeyPoint(i, -1)} disabled={i === 0}>
+                ▲
+              </button>
+              <button
+                type="button"
+                onClick={() => moveKeyPoint(i, 1)}
+                disabled={i === outline.keyPoints.length - 1}
+              >
+                ▼
+              </button>
+              <button type="button" onClick={() => removeKeyPoint(i)}>
+                ลบ
+              </button>
+            </div>
+          </div>
+          <label>
+            หัวข้อ
+            <input value={kp.title} onChange={(e) => updateKeyPoint(i, 'title', e.target.value)} />
+          </label>
+          <label>
+            วัตถุประสงค์
+            <input value={kp.objective} onChange={(e) => updateKeyPoint(i, 'objective', e.target.value)} />
+          </label>
+          <label>
+            เนื้อหา
+            <textarea rows={2} value={kp.content} onChange={(e) => updateKeyPoint(i, 'content', e.target.value)} />
+          </label>
+          <div className="row">
+            <label className="col-minutes">
+              นาที
+              <input
+                type="number"
+                value={kp.durationMin}
+                onChange={(e) => updateKeyPoint(i, 'durationMin', Number(e.target.value))}
+              />
+            </label>
+            <label>
+              กิจกรรม
+              <select
+                value={kp.teachingMethod}
+                onChange={(e) => updateKeyPoint(i, 'teachingMethod', e.target.value)}
+              >
+                {TEACHING_METHODS.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="col-refs">
+              CLO
+              <input
+                value={kp.cloRefs.join(', ')}
+                onChange={(e) => updateKeyPoint(i, 'cloRefs', refsToList(e.target.value))}
+              />
+            </label>
+          </div>
+          <label>
+            สื่อการสอน
+            <input value={kp.materials} onChange={(e) => updateKeyPoint(i, 'materials', e.target.value)} />
+          </label>
+          <label>
+            การประเมินผล
+            <input value={kp.assessment} onChange={(e) => updateKeyPoint(i, 'assessment', e.target.value)} />
+          </label>
+        </div>
+      ))}
+
+      <button type="button" onClick={addKeyPoint}>
+        + เพิ่มหัวข้อย่อย
+      </button>
+
+      {error && <p className="form-error">{error}</p>}
+      <button type="button" className="save-button" onClick={handleSave} disabled={saving}>
+        {saving ? 'กำลังบันทึก…' : 'บันทึกแผนการสอน'}
+      </button>
+      {savedTotal != null && (
+        <div className="save-confirm">
+          <p>บันทึกแล้ว — เวลารวม {savedTotal} นาที</p>
+          <button type="button" className="choose-button" onClick={onSaved}>
+            ถัดไป: ดาวน์โหลด
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function ComingSoon({ stageIndex }) {
   return (
     <div className="coming-soon">
@@ -427,7 +639,14 @@ function App() {
             onLectureChosen={handleLectureChosen}
           />
         )}
-        {stage >= 3 && (
+        {stage === 3 && selectedLecture && (
+          <OutlineEditor
+            sessionId={sessionId}
+            lecture={selectedLecture}
+            onSaved={() => setStage(4)}
+          />
+        )}
+        {stage >= 4 && (
           <>
             <p className="session-id">
               Session: {sessionId}

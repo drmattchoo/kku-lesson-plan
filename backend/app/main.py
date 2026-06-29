@@ -11,7 +11,16 @@ from app.auth import require_kku_user, router as auth_router
 from app.config import settings
 from app.document_loaders import load_document_text
 from app.extraction_service import extract_course
-from app.schemas import ExtractedCourse, InstructorProfile
+from app.outline_service import generate_outline
+from app.schemas import (
+    CLO,
+    ExtractedCourse,
+    InstructorProfile,
+    Lecture,
+    LectureOutline,
+    OutlineGrounding,
+    OutlineRequest,
+)
 from app.session_store import create_session, get_session, update_session
 from app.template_binder import render_lesson_plan
 from tests.fixtures.dummy_lesson_plan_context import DUMMY_CONTEXT
@@ -96,6 +105,42 @@ def put_course(
     session["course"] = corrected.model_dump()
     update_session(sid, session)
     return session["course"]
+
+
+@app.post("/api/outline")
+def create_outline(req: OutlineRequest, user: dict = Depends(require_kku_user)) -> dict:
+    session = _owned_session(req.sid, user)
+    course = session.get("course")
+    if course is None:
+        raise HTTPException(status_code=404, detail="Course not extracted yet")
+
+    lecture_data = next((l for l in course["lectures"] if l["id"] == req.lectureId), None)
+    if lecture_data is None:
+        raise HTTPException(status_code=404, detail="Lecture not found")
+
+    lecture = Lecture.model_validate(lecture_data)
+    clos = [CLO.model_validate(c) for c in course["CLOs"]]
+    grounding = OutlineGrounding(slidesText=session.get("slidesText"), brief=req.brief)
+
+    outline = generate_outline(lecture, clos, grounding=grounding)
+
+    outlines = session.setdefault("outlines", {})
+    outlines[req.lectureId] = outline.model_dump()
+    update_session(req.sid, session)
+
+    return outline.model_dump()
+
+
+@app.put("/api/outline/{lid}")
+def update_outline(
+    lid: str, sid: str, outline: LectureOutline, user: dict = Depends(require_kku_user)
+) -> dict:
+    session = _owned_session(sid, user)
+    outlines = session.setdefault("outlines", {})
+    outlines[lid] = outline.model_dump()
+    update_session(sid, session)
+    total_min = sum(kp.durationMin for kp in outline.keyPoints)
+    return {"ok": True, "totalMin": total_min}
 
 
 @app.get("/api/render-proof")
