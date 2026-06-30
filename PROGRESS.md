@@ -4,21 +4,36 @@ Read this first each session, then run the test suite. Update it as the LAST act
 of every session.
 
 ## Status
-**ALL MODULES BUILT (M0-M11) + staging-prep done.** Tree state: ☑ green (74 backend
-tests, frontend build+lint clean). Last green commit: 521a7bd — "staging: Dockerfile
-respects $PORT (Render/Railway/Heroku-style PaaS convention), add docs/STAGING.md
-runbook for Render".
+All modules M0-M11 built. Staging-prep done. v2 done (see below). Tree state: green
+(82 backend tests, frontend build+lint clean). Last commit: 34b4079 — "v2: minimal
+instructor form, course-spec-agnostic extraction, save/resume + back navigation".
 
-A full end-to-end live run (real DT.docx extraction → instructor correction → real
-outline generation with a brief → manual edit → single export → second outline →
-batch export to .zip) passed cleanly with NO mocking anywhere in the chain except
-auth (Google login can't be scripted without real credentials).
+Staging deploy itself is not done — host signup, clicking deploy, the Google redirect
+URI, the real-login smoke test are the user's step. `docs/STAGING.md` has the runbook.
 
-**Staging deploy itself is NOT done** — that's explicitly the user's step (host
-signup, clicking deploy, adding the Google OAuth redirect URI, the real-login smoke
-test). What Claude Code did: a production-config sanity pass (see "Decisions made"
-below for the 3 localhost-only bugs found and fixed) and `docs/STAGING.md`, a Render
-runbook with exact env vars and a 5-step smoke test, ready for the user to execute.
+### v2 changes (2026-06-29)
+- InstructorProfile reduced to {name, title}. Course code/name/term/department/
+  faculty/university/learners moved to ExtractedCourse, sourced from the spec
+  (best-effort, corrected on the existing M7 screen). `lesson_plan_assembler` and the
+  correction screen updated to match.
+- Extraction prompt no longer assumes the KKU มคอ-3 structure — course specs vary by
+  institution/program; prompt describes fields generically now. Live-verified against
+  real DT.docx, still extracts correctly plus the new term/department/learners fields.
+- Save/resume: `GET /api/session/{sid}` (resume) and `PUT /api/session/{sid}` (edit
+  name/title without losing the attached course) added. Frontend persists sessionId
+  to localStorage and resumes on page load.
+- Back/forward: every wizard screen has a Back button; the stage breadcrumb is
+  clickable up to the furthest stage reached.
+- Two real bugs found via the user's own local smoke test (not caught by any
+  automated test, since all auth/LLM tests mock the external call):
+  1. OAuth client was missing `jwks_uri` — a REAL (non-mocked) Google login 500'd
+     when authlib tried to verify the signed id_token. Fixed in `app/auth.py`.
+  2. `openai.APIError` (gateway auth/quota/rate-limit) wasn't caught by
+     `_run_llm_step` — only json/pydantic errors were — so a real gateway failure
+     (hit the daily quota on claude-sonnet-4.6 from cumulative testing) crashed with
+     a raw 500 instead of a clean 502. Fixed in `app/main.py`.
+- Local `.env` LLM_PROVIDER switched to `gpt` — claude-sonnet-4.6's daily quota on
+  this key is exhausted from testing. Switch back once it resets if you want Claude.
 
 ## Your homework (do before opening Claude Code) — all done
 - [x] One clean official KKU lesson-plan .docx + written list of every field it needs
@@ -174,8 +189,6 @@ doesn't exercise them):
     References section will always render empty unless this is added later.
 
 ## Next session should start by
-- Nothing is blocking. The user's next step is `docs/STAGING.md` end to end: push to
-  GitHub, create the Render service, set the env vars, add the Google redirect URI,
-  run the 5-step smoke test. Report back here (URL, what broke, what didn't) so a
-  future session has the real-world facts the code alone can't provide — that's
-  exactly what this staging pass exists to surface before the real launch.
+- Nothing blocking. User's next step: `docs/STAGING.md` end to end (push to GitHub,
+  create Render service, set env vars, add Google redirect URI, smoke test). Report
+  back here what broke.
