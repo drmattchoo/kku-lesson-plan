@@ -8,15 +8,6 @@ from pydantic import BaseModel
 class InstructorProfile(BaseModel):
     name: str
     title: str
-    department: str
-    faculty: str
-    university: str = "มหาวิทยาลัยขอนแก่น"
-    courseCode: str
-    courseName: str
-    academicYear: str
-    semester: str
-    section: str = ""
-    learners: str = ""
 
 
 class PLO(BaseModel):
@@ -42,6 +33,12 @@ class Lecture(BaseModel):
 class ExtractedCourse(BaseModel):
     courseCode: str
     courseName: str
+    academicYear: str = ""
+    semester: str = ""
+    department: str = ""
+    faculty: str = ""
+    university: str = "มหาวิทยาลัยขอนแก่น"
+    learners: str = ""
     PLOs: List[PLO] = []
     CLOs: List[CLO] = []
     lectures: List[Lecture] = []

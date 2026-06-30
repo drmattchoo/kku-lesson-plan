@@ -1,26 +1,17 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 const STAGES = [
   'อาจารย์ผู้สอน',
-  'อัปโหลด มคอ-3',
+  'อัปโหลดเอกสารหลักสูตร',
   'เลือกหัวข้อบรรยาย',
   'แก้ไขแผนการสอน',
   'ดาวน์โหลด',
 ]
 
-const EMPTY_PROFILE = {
-  name: '',
-  title: '',
-  department: '',
-  faculty: '',
-  university: 'มหาวิทยาลัยขอนแก่น',
-  courseCode: '',
-  courseName: '',
-  academicYear: '',
-  semester: '',
-  section: '',
-}
+const EMPTY_PROFILE = { name: '', title: '' }
+
+const SESSION_ID_KEY = 'lessonPlanSessionId'
 
 function refsToList(text) {
   return text
@@ -40,8 +31,17 @@ async function parseErrorOrThrow(resp) {
   }
 }
 
-function InstructorForm({ onCreated }) {
-  const [profile, setProfile] = useState(EMPTY_PROFILE)
+function BackButton({ onBack }) {
+  if (!onBack) return null
+  return (
+    <button type="button" className="back-button" onClick={onBack}>
+      ย้อนกลับ
+    </button>
+  )
+}
+
+function InstructorForm({ sessionId, initialProfile, onSaved, onBack }) {
+  const [profile, setProfile] = useState(initialProfile)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -54,15 +54,16 @@ function InstructorForm({ onCreated }) {
     setSubmitting(true)
     setError('')
     try {
-      const resp = await fetch('/api/session', {
-        method: 'POST',
+      const url = sessionId ? `/api/session/${sessionId}` : '/api/session'
+      const resp = await fetch(url, {
+        method: sessionId ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(profile),
         credentials: 'include',
       })
       await parseErrorOrThrow(resp)
       const data = await resp.json()
-      onCreated(data.sessionId)
+      onSaved(data.sessionId, profile)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -72,7 +73,8 @@ function InstructorForm({ onCreated }) {
 
   return (
     <form className="instructor-form" onSubmit={handleSubmit}>
-      <h2>ข้อมูลอาจารย์ผู้สอนและรายวิชา</h2>
+      <h2>ข้อมูลอาจารย์ผู้สอน</h2>
+      <p className="hint">ข้อมูลรายวิชาจะดึงจากเอกสารหลักสูตรที่อัปโหลดในขั้นตอนถัดไป</p>
 
       <label>
         ชื่อ-สกุล
@@ -82,49 +84,20 @@ function InstructorForm({ onCreated }) {
         ตำแหน่ง
         <input required value={profile.title} onChange={update('title')} />
       </label>
-      <label>
-        สาขาวิชา/ภาควิชา
-        <input required value={profile.department} onChange={update('department')} />
-      </label>
-      <label>
-        คณะ
-        <input required value={profile.faculty} onChange={update('faculty')} />
-      </label>
-      <label>
-        มหาวิทยาลัย
-        <input required value={profile.university} onChange={update('university')} />
-      </label>
-      <label>
-        รหัสวิชา
-        <input required value={profile.courseCode} onChange={update('courseCode')} />
-      </label>
-      <label>
-        ชื่อวิชา
-        <input required value={profile.courseName} onChange={update('courseName')} />
-      </label>
-      <label>
-        ปีการศึกษา
-        <input required value={profile.academicYear} onChange={update('academicYear')} />
-      </label>
-      <label>
-        ภาคการศึกษา
-        <input required value={profile.semester} onChange={update('semester')} />
-      </label>
-      <label>
-        กลุ่มเรียน (ถ้ามี)
-        <input value={profile.section} onChange={update('section')} />
-      </label>
 
       {error && <p className="form-error">{error}</p>}
 
-      <button type="submit" disabled={submitting}>
-        {submitting ? 'กำลังบันทึก…' : 'ถัดไป'}
-      </button>
+      <div className="form-actions">
+        <BackButton onBack={onBack} />
+        <button type="submit" disabled={submitting}>
+          {submitting ? 'กำลังบันทึก…' : 'ถัดไป'}
+        </button>
+      </div>
     </form>
   )
 }
 
-function UploadForm({ sessionId, onExtracted }) {
+function UploadForm({ sessionId, onExtracted, onBack }) {
   const [specFile, setSpecFile] = useState(null)
   const [slidesFile, setSlidesFile] = useState(null)
   const [submitting, setSubmitting] = useState(false)
@@ -158,13 +131,14 @@ function UploadForm({ sessionId, onExtracted }) {
 
   return (
     <form className="upload-form" onSubmit={handleSubmit}>
-      <h2>อัปโหลดเอกสาร มคอ-3</h2>
+      <h2>อัปโหลดเอกสารหลักสูตร</h2>
       <p className="hint">
-        มคอ-3 (หรือ Course Specification) เป็นไฟล์เดียวที่จำเป็น — สไลด์ประกอบการสอนเป็นตัวเลือกเสริม
+        เอกสารหลักสูตร/รายละเอียดรายวิชา (เช่น มคอ-3 หรือรูปแบบอื่นที่เทียบเท่า) เป็นไฟล์เดียวที่จำเป็น
+        — สไลด์ประกอบการสอนเป็นตัวเลือกเสริม
       </p>
 
       <label>
-        มคอ-3 (จำเป็น)
+        เอกสารหลักสูตร (จำเป็น)
         <input
           type="file"
           accept=".docx,.pptx"
@@ -183,14 +157,17 @@ function UploadForm({ sessionId, onExtracted }) {
 
       {error && <p className="form-error">{error}</p>}
 
-      <button type="submit" disabled={submitting || !specFile}>
-        {submitting ? 'กำลังประมวลผล…' : 'แยกข้อมูลรายวิชา'}
-      </button>
+      <div className="form-actions">
+        <BackButton onBack={onBack} />
+        <button type="submit" disabled={submitting || !specFile}>
+          {submitting ? 'กำลังประมวลผล…' : 'แยกข้อมูลรายวิชา'}
+        </button>
+      </div>
     </form>
   )
 }
 
-function CorrectionScreen({ sessionId, initialCourse, onLectureChosen }) {
+function CorrectionScreen({ sessionId, initialCourse, onLectureChosen, onBack }) {
   const [course, setCourse] = useState(initialCourse)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -258,6 +235,30 @@ function CorrectionScreen({ sessionId, initialCourse, onLectureChosen }) {
       <label>
         ชื่อวิชา
         <input value={course.courseName} onChange={(e) => updateField('courseName', e.target.value)} />
+      </label>
+      <label>
+        ปีการศึกษา
+        <input value={course.academicYear} onChange={(e) => updateField('academicYear', e.target.value)} />
+      </label>
+      <label>
+        ภาคการศึกษา
+        <input value={course.semester} onChange={(e) => updateField('semester', e.target.value)} />
+      </label>
+      <label>
+        สาขาวิชา/ภาควิชา
+        <input value={course.department} onChange={(e) => updateField('department', e.target.value)} />
+      </label>
+      <label>
+        คณะ
+        <input value={course.faculty} onChange={(e) => updateField('faculty', e.target.value)} />
+      </label>
+      <label>
+        มหาวิทยาลัย
+        <input value={course.university} onChange={(e) => updateField('university', e.target.value)} />
+      </label>
+      <label>
+        ผู้เรียน
+        <input value={course.learners} onChange={(e) => updateField('learners', e.target.value)} />
       </label>
 
       <h3>PLO</h3>
@@ -366,9 +367,12 @@ function CorrectionScreen({ sessionId, initialCourse, onLectureChosen }) {
       </button>
 
       {error && <p className="form-error">{error}</p>}
-      <button type="button" className="save-button" onClick={handleSave} disabled={saving}>
-        {saving ? 'กำลังบันทึก…' : 'บันทึกการแก้ไข'}
-      </button>
+      <div className="form-actions">
+        <BackButton onBack={onBack} />
+        <button type="button" className="save-button" onClick={handleSave} disabled={saving}>
+          {saving ? 'กำลังบันทึก…' : 'บันทึกการแก้ไข'}
+        </button>
+      </div>
       {saved && <p className="save-confirm">บันทึกแล้ว — กดปุ่ม "เลือก" ที่หัวข้อด้านบนเพื่อสร้างแผนการสอน</p>}
     </div>
   )
@@ -376,7 +380,7 @@ function CorrectionScreen({ sessionId, initialCourse, onLectureChosen }) {
 
 const TEACHING_METHODS = ['lecture', 'interactive', 'quiz']
 
-function OutlineEditor({ sessionId, lecture, onSaved }) {
+function OutlineEditor({ sessionId, lecture, onSaved, onBack }) {
   const [brief, setBrief] = useState('')
   const [outline, setOutline] = useState(null)
   const [generating, setGenerating] = useState(false)
@@ -478,9 +482,12 @@ function OutlineEditor({ sessionId, lecture, onSaved }) {
           <textarea value={brief} onChange={(e) => setBrief(e.target.value)} rows={3} />
         </label>
         {error && <p className="form-error">{error}</p>}
-        <button type="button" onClick={handleGenerate} disabled={generating}>
-          {generating ? 'กำลังสร้าง…' : 'สร้างแผนการสอน'}
-        </button>
+        <div className="form-actions">
+          <BackButton onBack={onBack} />
+          <button type="button" onClick={handleGenerate} disabled={generating}>
+            {generating ? 'กำลังสร้าง…' : 'สร้างแผนการสอน'}
+          </button>
+        </div>
       </div>
     )
   }
@@ -571,9 +578,12 @@ function OutlineEditor({ sessionId, lecture, onSaved }) {
       </button>
 
       {error && <p className="form-error">{error}</p>}
-      <button type="button" className="save-button" onClick={handleSave} disabled={saving}>
-        {saving ? 'กำลังบันทึก…' : 'บันทึกแผนการสอน'}
-      </button>
+      <div className="form-actions">
+        <BackButton onBack={onBack} />
+        <button type="button" className="save-button" onClick={handleSave} disabled={saving}>
+          {saving ? 'กำลังบันทึก…' : 'บันทึกแผนการสอน'}
+        </button>
+      </div>
       {savedTotal != null && (
         <div className="save-confirm">
           <p>บันทึกแล้ว — เวลารวม {savedTotal} นาที</p>
@@ -599,7 +609,7 @@ async function downloadBlob(resp, filename) {
   URL.revokeObjectURL(url)
 }
 
-function ExportScreen({ sessionId, lecture, completedLectureIds, onPickAnother }) {
+function ExportScreen({ sessionId, lecture, completedLectureIds, onPickAnother, onBack }) {
   const [sessionDate, setSessionDate] = useState('')
   const [sessionTime, setSessionTime] = useState('')
   const [downloading, setDownloading] = useState(false)
@@ -656,9 +666,12 @@ function ExportScreen({ sessionId, lecture, completedLectureIds, onPickAnother }
 
       {error && <p className="form-error">{error}</p>}
 
-      <button type="button" onClick={handleDownloadOne} disabled={downloading}>
-        {downloading ? 'กำลังสร้างไฟล์…' : 'ดาวน์โหลด .docx (หัวข้อนี้)'}
-      </button>
+      <div className="form-actions">
+        <BackButton onBack={onBack} />
+        <button type="button" onClick={handleDownloadOne} disabled={downloading}>
+          {downloading ? 'กำลังสร้างไฟล์…' : 'ดาวน์โหลด .docx (หัวข้อนี้)'}
+        </button>
+      </div>
 
       {completedLectureIds.length > 1 && (
         <button type="button" onClick={handleDownloadBatch} disabled={downloading}>
@@ -675,31 +688,80 @@ function ExportScreen({ sessionId, lecture, completedLectureIds, onPickAnother }
 
 function App() {
   const [stage, setStage] = useState(0)
+  const [maxStage, setMaxStage] = useState(0)
   const [sessionId, setSessionId] = useState(null)
+  const [profile, setProfile] = useState(EMPTY_PROFILE)
   const [course, setCourse] = useState(null)
   const [selectedLecture, setSelectedLecture] = useState(null)
   const [completedLectureIds, setCompletedLectureIds] = useState([])
+  const [resuming, setResuming] = useState(true)
 
-  function handleCreated(newSessionId) {
+  function goToStage(target) {
+    setStage(target)
+    setMaxStage((m) => Math.max(m, target))
+  }
+
+  useEffect(() => {
+    const savedId = localStorage.getItem(SESSION_ID_KEY)
+    if (!savedId) {
+      setResuming(false)
+      return
+    }
+    fetch(`/api/session/${savedId}`, { credentials: 'include' })
+      .then((resp) => {
+        if (!resp.ok) {
+          localStorage.removeItem(SESSION_ID_KEY)
+          return null
+        }
+        return resp.json()
+      })
+      .then((data) => {
+        if (!data) return
+        setSessionId(savedId)
+        if (data.instructorProfile) setProfile(data.instructorProfile)
+        if (data.course) {
+          setCourse(data.course)
+          setCompletedLectureIds(data.outlineLectureIds || [])
+          goToStage(2)
+        } else if (data.instructorProfile) {
+          goToStage(1)
+        }
+      })
+      .catch(() => localStorage.removeItem(SESSION_ID_KEY))
+      .finally(() => setResuming(false))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  function handleProfileSaved(newSessionId, savedProfile) {
+    localStorage.setItem(SESSION_ID_KEY, newSessionId)
     setSessionId(newSessionId)
-    setStage(1)
+    setProfile(savedProfile)
+    goToStage(1)
   }
 
   function handleExtracted(extractedCourse) {
     setCourse(extractedCourse)
-    setStage(2)
+    goToStage(2)
   }
 
   function handleLectureChosen(lecture) {
     setSelectedLecture(lecture)
-    setStage(3)
+    goToStage(3)
   }
 
   function handleOutlineSaved() {
     setCompletedLectureIds((ids) =>
       ids.includes(selectedLecture.id) ? ids : [...ids, selectedLecture.id]
     )
-    setStage(4)
+    goToStage(4)
+  }
+
+  if (resuming) {
+    return (
+      <div className="wizard">
+        <p className="hint">กำลังโหลด…</p>
+      </div>
+    )
   }
 
   return (
@@ -708,7 +770,16 @@ function App() {
         <h1>แผนการสอน Generator</h1>
         <ol className="stage-tracker">
           {STAGES.map((label, i) => (
-            <li key={label} className={i === stage ? 'active' : i < stage ? 'done' : ''}>
+            <li
+              key={label}
+              className={[
+                i === stage ? 'active' : i < stage ? 'done' : '',
+                i <= maxStage ? 'clickable' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              onClick={() => i <= maxStage && setStage(i)}
+            >
               {label}
             </li>
           ))}
@@ -716,13 +787,26 @@ function App() {
       </header>
 
       <main>
-        {stage === 0 && <InstructorForm onCreated={handleCreated} />}
-        {stage === 1 && <UploadForm sessionId={sessionId} onExtracted={handleExtracted} />}
+        {stage === 0 && (
+          <InstructorForm
+            sessionId={sessionId}
+            initialProfile={profile}
+            onSaved={handleProfileSaved}
+          />
+        )}
+        {stage === 1 && (
+          <UploadForm
+            sessionId={sessionId}
+            onExtracted={handleExtracted}
+            onBack={() => setStage(0)}
+          />
+        )}
         {stage === 2 && course && (
           <CorrectionScreen
             sessionId={sessionId}
             initialCourse={course}
             onLectureChosen={handleLectureChosen}
+            onBack={() => setStage(1)}
           />
         )}
         {stage === 3 && selectedLecture && (
@@ -730,6 +814,7 @@ function App() {
             sessionId={sessionId}
             lecture={selectedLecture}
             onSaved={handleOutlineSaved}
+            onBack={() => setStage(2)}
           />
         )}
         {stage === 4 && selectedLecture && (
@@ -738,6 +823,7 @@ function App() {
             lecture={selectedLecture}
             completedLectureIds={completedLectureIds}
             onPickAnother={() => setStage(2)}
+            onBack={() => setStage(3)}
           />
         )}
       </main>

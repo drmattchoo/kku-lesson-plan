@@ -1,9 +1,12 @@
 # แผนการสอน Generator — build context
 
-Instructor web app for KKU faculty: reads a course spec (มคอ-3) and drafts a
-KKU-format lesson plan one lecture at a time. The spec is the only REQUIRED input;
-the instructor can optionally add existing slides and/or a short text brief to make
-each generated outline more specific.
+Instructor web app for KKU faculty: reads a course spec document (often called
+มคอ-3, but format/structure varies by institution/program — never assume the KKU
+มคอ-3 layout) and drafts a KKU-format lesson plan one lecture at a time. The spec is
+the only REQUIRED input; the instructor can optionally add existing slides and/or a
+short text brief to make each generated outline more specific. The instructor only
+enters their name and title — course code/name/term/department/learners are all
+sourced from the spec (best-effort, instructor corrects on the M7 screen).
 Pattern: **prove the output first → log in → tame messy input → generate in a loop → render**.
 
 Some parsing / CLO-mapping / template logic can be lifted from the existing
@@ -36,10 +39,13 @@ Some parsing / CLO-mapping / template logic can be lifted from the existing
 - State: one JSON blob per session (disk or SQLite). API key + Google secret server-side only.
 
 ## Data schemas (define once in schemas.py)
-- InstructorProfile: name, title, department, faculty, university,
-  courseCode, courseName, academicYear, semester, section
-- ExtractedCourse: courseCode, courseName, PLOs[{id,text}],
-  CLOs[{id,text,ploRefs[]}], lectures[{id,week,topic,name,durationMin,cloRefs[]}]
+- InstructorProfile: name, title — that's it. Everything course-related is sourced
+  from the spec, not typed in by the instructor.
+- ExtractedCourse: courseCode, courseName, academicYear, semester, department,
+  faculty, university, learners, PLOs[{id,text}], CLOs[{id,text,ploRefs[]}],
+  lectures[{id,week,topic,name,durationMin,cloRefs[]}] — academicYear/semester/
+  department/faculty/university/learners are best-effort (empty string if the spec
+  doesn't state them), instructor corrects on the M7 screen like everything else.
 - OutlineGrounding (optional): { slidesText?, brief? }   # either, both, or neither
 - LectureOutline: lectureId, totalDurationMin,
   keyPoints[{seq,title,objective,content,durationMin,teachingMethod,cloRefs[],materials,assessment}]
@@ -57,8 +63,10 @@ Some parsing / CLO-mapping / template logic can be lifted from the existing
 - LessonPlanContext = InstructorProfile + selected Lecture + its CLOs/PLOs + edited LectureOutline
 
 ## API
-POST /api/session (InstructorProfile)              -> {sessionId}
-POST /api/extract (multipart: มคอ [required] + slides [optional]) -> ExtractedCourse DRAFT
+POST /api/session (InstructorProfile: name, title)  -> {sessionId}
+GET  /api/session/{sid}                             -> resume: {instructorProfile, course, outlineLectureIds}
+PUT  /api/session/{sid} (InstructorProfile)          -> {sessionId}   # edit name/title without losing course/outlines
+POST /api/extract (multipart: spec [required] + slides [optional]) -> ExtractedCourse DRAFT
 GET  /api/course/{sid}                              -> ExtractedCourse
 PUT  /api/course/{sid}                              -> corrected ExtractedCourse   # correction gate
 POST /api/outline ({lectureId, brief?})            -> LectureOutline draft  # uses slides/brief if present

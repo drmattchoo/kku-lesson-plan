@@ -45,6 +45,45 @@ def test_extract_course_parses_valid_payload():
     provider.complete_json.assert_called_once()
 
 
+def test_extract_course_parses_term_and_audience_fields():
+    provider = _provider_returning(
+        {
+            "courseCode": "MD672305",
+            "courseName": "Physiology for Dental Students",
+            "academicYear": "2569",
+            "semester": "1",
+            "department": "สาขาวิชาสรีรวิทยา",
+            "faculty": "คณะแพทยศาสตร์",
+            "university": "มหาวิทยาลัยขอนแก่น",
+            "learners": "นักศึกษาทันตแพทย์ ชั้นปีที่ 2",
+            "PLOs": [],
+            "CLOs": [],
+            "lectures": [],
+        }
+    )
+
+    result = extract_course("text", provider=provider)
+
+    assert result.academicYear == "2569"
+    assert result.semester == "1"
+    assert result.department == "สาขาวิชาสรีรวิทยา"
+    assert result.learners == "นักศึกษาทันตแพทย์ ชั้นปีที่ 2"
+
+
+def test_extract_course_defaults_term_and_audience_fields_to_empty_when_absent():
+    # course specs vary in format — these fields aren't always stated
+    provider = _provider_returning(
+        {"courseCode": "MD1", "courseName": "X", "PLOs": [], "CLOs": [], "lectures": []}
+    )
+
+    result = extract_course("text", provider=provider)
+
+    assert result.academicYear == ""
+    assert result.semester == ""
+    assert result.department == ""
+    assert result.learners == ""
+
+
 def test_extract_course_allows_empty_plos_for_real_world_doc():
     # the real DT.docx มคอ-3 has a PLO/CLO mapping table that's just headers with no
     # data rows — extraction must not invent PLOs to fill that gap.

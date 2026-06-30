@@ -35,13 +35,7 @@ def _logged_in_client(monkeypatch, tmp_path, email="instructor@kku.ac.th"):
 
 
 def _create_session(client):
-    resp = client.post(
-        "/api/session",
-        json={
-            "name": "x", "title": "x", "department": "x", "faculty": "x",
-            "courseCode": "MD1", "courseName": "X", "academicYear": "2569", "semester": "1",
-        },
-    )
+    resp = client.post("/api/session", json={"name": "x", "title": "x"})
     return resp.json()["sessionId"]
 
 

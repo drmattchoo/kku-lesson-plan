@@ -31,6 +31,25 @@
   opacity: 0.6;
 }
 
+.stage-tracker li.clickable {
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.back-button {
+  padding: 0.6rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
 .instructor-form {
   display: flex;
   flex-direction: column;
@@ -69,11 +88,6 @@
 
 .form-error {
   color: #c0392b;
-}
-
-.session-id {
-  font-size: 0.8rem;
-  color: var(--text);
 }
 
 .hint {

@@ -12,6 +12,10 @@ from app.main import app
 COURSE = {
     "courseCode": "MD672305",
     "courseName": "Physiology for Dental Students",
+    "academicYear": "2569",
+    "semester": "1",
+    "department": "สรีรวิทยา",
+    "learners": "นักศึกษาทันตแพทย์",
     "PLOs": [{"id": "4", "text": "ตัวอย่าง PLO"}],
     "CLOs": [{"id": "CLO1", "text": "x", "ploRefs": ["4"]}],
     "lectures": [
@@ -47,14 +51,7 @@ def _logged_in_client(monkeypatch, tmp_path, email="instructor@kku.ac.th"):
 
 
 def _session_with_course_and_outlines(client, outlines):
-    resp = client.post(
-        "/api/session",
-        json={
-            "name": "อ.ทดสอบ", "title": "x", "department": "สรีรวิทยา", "faculty": "แพทยศาสตร์",
-            "courseCode": "MD1", "courseName": "X", "academicYear": "2569", "semester": "1",
-            "learners": "นักศึกษาทันตแพทย์",
-        },
-    )
+    resp = client.post("/api/session", json={"name": "อ.ทดสอบ", "title": "x"})
     sid = resp.json()["sessionId"]
     session = session_store.get_session(sid)
     session["course"] = COURSE

@@ -110,6 +110,32 @@ def create_instructor_session(
     return {"sessionId": session_id}
 
 
+@app.get("/api/session/{sid}")
+def read_session(sid: str, user: dict = Depends(require_kku_user)) -> dict:
+    """Resume support: returns enough of the session for the frontend to restore
+    its stage/state after a page reload (instructor profile, the course if already
+    extracted, and which lectures already have a saved outline)."""
+    session = _owned_session(sid, user)
+    return {
+        "instructorProfile": session.get("instructorProfile"),
+        "course": session.get("course"),
+        "outlineLectureIds": list(session.get("outlines", {}).keys()),
+    }
+
+
+@app.put("/api/session/{sid}")
+def update_instructor_session(
+    sid: str, profile: InstructorProfile, user: dict = Depends(require_kku_user)
+) -> dict:
+    """Lets the instructor edit name/title after navigating back, without losing
+    the course/outlines already attached to this session (a fresh POST would create
+    a brand new, empty session instead)."""
+    session = _owned_session(sid, user)
+    session["instructorProfile"] = profile.model_dump()
+    update_session(sid, session)
+    return {"sessionId": sid}
+
+
 @app.post("/api/extract")
 def extract(
     sid: str = Form(...),

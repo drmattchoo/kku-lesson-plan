@@ -4,18 +4,16 @@ from app.schemas import CLO, ExtractedCourse, InstructorProfile, KeyPoint, Lectu
 INSTRUCTOR = InstructorProfile(
     name="ผศ.ดร. สมชาย ใจดี",
     title="ผู้ช่วยศาสตราจารย์",
-    department="สาขาวิชาสรีรวิทยา",
-    faculty="คณะแพทยศาสตร์",
-    courseCode="MD672305",
-    courseName="Physiology for Dental Students",
-    academicYear="2569",
-    semester="1",
-    learners="นักศึกษาทันตแพทย์ ชั้นปีที่ 2",
 )
 
 COURSE = ExtractedCourse(
     courseCode="MD672305",
     courseName="Physiology for Dental Students",
+    academicYear="2569",
+    semester="1",
+    department="สาขาวิชาสรีรวิทยา",
+    faculty="คณะแพทยศาสตร์",
+    learners="นักศึกษาทันตแพทย์ ชั้นปีที่ 2",
     PLOs=[PLO(id="4", text="x")],
     CLOs=[CLO(id="1", text="y", ploRefs=["4"])],
     lectures=[Lecture(id="4", week="1", topic="สรีรวิทยาระบบประสาท", name="x", durationMin=120, cloRefs=["1"])],

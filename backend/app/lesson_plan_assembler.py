@@ -39,15 +39,15 @@ def build_render_context(
     ]
 
     return {
-        "semester": instructor.semester,
-        "academicYear": instructor.academicYear,
+        "semester": course.semester,
+        "academicYear": course.academicYear,
         "courseCode": course.courseCode,
         "courseName": course.courseName,
         "lectureTopic": lecture.topic,
         "totalDurationHours": _format_hours(outline.totalDurationMin),
-        "learners": instructor.learners,
+        "learners": course.learners,
         "instructorName": instructor.name,
-        "department": instructor.department,
+        "department": course.department,
         "sessionDate": session_date,
         "sessionTime": session_time,
         "PLOs": [plo.model_dump() for plo in course.PLOs],
