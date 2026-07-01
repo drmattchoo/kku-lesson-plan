@@ -27,7 +27,11 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 def _is_allowed(email: str) -> bool:
-    return email.lower().endswith(f"@{settings.allowed_email_domain.lower()}")
+    email_lc = email.lower()
+    if email_lc.endswith(f"@{settings.allowed_email_domain.lower()}"):
+        return True
+    extras = [e.strip().lower() for e in settings.extra_allowed_emails.split(",") if e.strip()]
+    return email_lc in extras
 
 
 @router.get("/login")
@@ -40,9 +44,7 @@ async def login(request: Request):
         redirect_uri = f"{settings.base_url.rstrip('/')}/auth/callback"
     else:
         redirect_uri = request.url_for("auth_callback")
-    return await oauth.google.authorize_redirect(
-        request, redirect_uri, hd=settings.allowed_email_domain
-    )
+    return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
 @router.get("/callback", name="auth_callback")

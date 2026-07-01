@@ -9,7 +9,7 @@ const STAGES = [
   'ดาวน์โหลด',
 ]
 
-const EMPTY_PROFILE = { name: '', title: '' }
+const EMPTY_PROFILE = { name: '', title: '', llmApiKey: '' }
 
 const SESSION_ID_KEY = 'lessonPlanSessionId'
 
@@ -40,7 +40,7 @@ function BackButton({ onBack }) {
   )
 }
 
-function InstructorForm({ sessionId, initialProfile, onSaved, onBack }) {
+function InstructorForm({ sessionId, initialProfile, hasPersonalApiKey, onSaved, onBack }) {
   const [profile, setProfile] = useState(initialProfile)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -84,6 +84,20 @@ function InstructorForm({ sessionId, initialProfile, onSaved, onBack }) {
         ตำแหน่ง
         <input required value={profile.title} onChange={update('title')} />
       </label>
+      <label>
+        API Key ส่วนตัว (ไม่บังคับ)
+        <input
+          type="password"
+          value={profile.llmApiKey}
+          onChange={update('llmApiKey')}
+          placeholder={
+            hasPersonalApiKey ? 'บันทึกไว้แล้ว — เว้นว่างเพื่อใช้คีย์เดิม' : 'เว้นว่างเพื่อใช้โควต้าส่วนกลาง'
+          }
+        />
+      </label>
+      <p className="hint">
+        หากมี API key ส่วนตัวจาก gen.ai.kku.ac.th และไม่ต้องการใช้โควต้าส่วนกลาง สามารถกรอกได้ที่นี่
+      </p>
 
       {error && <p className="form-error">{error}</p>}
 
@@ -694,6 +708,7 @@ function App() {
   const [course, setCourse] = useState(null)
   const [selectedLecture, setSelectedLecture] = useState(null)
   const [completedLectureIds, setCompletedLectureIds] = useState([])
+  const [hasPersonalApiKey, setHasPersonalApiKey] = useState(false)
   const [resuming, setResuming] = useState(true)
 
   function goToStage(target) {
@@ -719,6 +734,7 @@ function App() {
         if (!data) return
         setSessionId(savedId)
         if (data.instructorProfile) setProfile(data.instructorProfile)
+        setHasPersonalApiKey(Boolean(data.hasPersonalApiKey))
         if (data.course) {
           setCourse(data.course)
           setCompletedLectureIds(data.outlineLectureIds || [])
@@ -736,6 +752,7 @@ function App() {
     localStorage.setItem(SESSION_ID_KEY, newSessionId)
     setSessionId(newSessionId)
     setProfile(savedProfile)
+    if (savedProfile.llmApiKey) setHasPersonalApiKey(true)
     goToStage(1)
   }
 
@@ -791,6 +808,7 @@ function App() {
           <InstructorForm
             sessionId={sessionId}
             initialProfile={profile}
+            hasPersonalApiKey={hasPersonalApiKey}
             onSaved={handleProfileSaved}
           />
         )}

@@ -17,6 +17,7 @@ from app.config import REPO_ROOT, parse_csv_env, settings
 from app.document_loaders import load_document_text
 from app.extraction_service import extract_course
 from app.lesson_plan_assembler import build_render_context
+from app.llm import get_provider
 from app.outline_service import generate_outline
 from app.rate_limit import enforce_rate_limit
 from app.retry import RETRYABLE_ERRORS
@@ -71,6 +72,13 @@ def _owned_session(sid: str, user: dict) -> dict:
     return session
 
 
+def _provider_for_session(session: dict):
+    """Use the instructor's personal LLM key if they set one, else fall back to the
+    shared server key (LLMProvider's own default)."""
+    api_key = (session.get("instructorProfile") or {}).get("llmApiKey")
+    return get_provider(api_key=api_key) if api_key else None
+
+
 def _save_upload_to_tmp(upload: UploadFile) -> Path:
     suffix = Path(upload.filename or "").suffix
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
@@ -114,10 +122,16 @@ def create_instructor_session(
 def read_session(sid: str, user: dict = Depends(require_kku_user)) -> dict:
     """Resume support: returns enough of the session for the frontend to restore
     its stage/state after a page reload (instructor profile, the course if already
-    extracted, and which lectures already have a saved outline)."""
+    extracted, and which lectures already have a saved outline). The personal LLM
+    key, if set, is never echoed back — only whether one is saved."""
     session = _owned_session(sid, user)
+    profile = session.get("instructorProfile")
+    has_api_key = bool((profile or {}).get("llmApiKey"))
+    if profile is not None:
+        profile = {**profile, "llmApiKey": ""}
     return {
-        "instructorProfile": session.get("instructorProfile"),
+        "instructorProfile": profile,
+        "hasPersonalApiKey": has_api_key,
         "course": session.get("course"),
         "outlineLectureIds": list(session.get("outlines", {}).keys()),
     }
@@ -129,9 +143,15 @@ def update_instructor_session(
 ) -> dict:
     """Lets the instructor edit name/title after navigating back, without losing
     the course/outlines already attached to this session (a fresh POST would create
-    a brand new, empty session instead)."""
+    a brand new, empty session instead). A blank llmApiKey here means "leave it
+    alone" — the field is never pre-filled with the real key (see read_session), so
+    submitting it blank must not silently wipe an already-saved key."""
     session = _owned_session(sid, user)
-    session["instructorProfile"] = profile.model_dump()
+    updated = profile.model_dump()
+    existing_key = (session.get("instructorProfile") or {}).get("llmApiKey")
+    if not updated.get("llmApiKey") and existing_key:
+        updated["llmApiKey"] = existing_key
+    session["instructorProfile"] = updated
     update_session(sid, session)
     return {"sessionId": sid}
 
@@ -153,8 +173,8 @@ def extract(
         spec_path.unlink(missing_ok=True)
 
     course = _run_llm_step(
-        lambda: extract_course(spec_text),
-        "การประมวลผล มคอ-3 ล้มเหลว กรุณาลองใหม่อีกครั้ง",
+        lambda: extract_course(spec_text, provider=_provider_for_session(session)),
+        "การประมวลผลเอกสารหลักสูตรล้มเหลว กรุณาลองใหม่อีกครั้ง",
     )
     session["course"] = course.model_dump()
 
@@ -204,7 +224,9 @@ def create_outline(req: OutlineRequest, user: dict = Depends(require_kku_user)) 
     grounding = OutlineGrounding(slidesText=session.get("slidesText"), brief=req.brief)
 
     outline = _run_llm_step(
-        lambda: generate_outline(lecture, clos, grounding=grounding),
+        lambda: generate_outline(
+            lecture, clos, grounding=grounding, provider=_provider_for_session(session)
+        ),
         "การสร้างแผนการสอนล้มเหลว กรุณาลองใหม่อีกครั้ง",
     )
 

@@ -42,7 +42,7 @@ def _create_session(client):
 def test_extract_creates_course_draft_from_real_docx(monkeypatch, tmp_path):
     client = _logged_in_client(monkeypatch, tmp_path)
     sid = _create_session(client)
-    monkeypatch.setattr(main_module, "extract_course", lambda text: FAKE_COURSE)
+    monkeypatch.setattr(main_module, "extract_course", lambda text, provider=None: FAKE_COURSE)
 
     with open(FIXTURES / "PT.docx", "rb") as f:
         resp = client.post(
@@ -59,10 +59,49 @@ def test_extract_creates_course_draft_from_real_docx(monkeypatch, tmp_path):
     assert "slidesText" not in stored
 
 
+def test_extract_uses_instructors_personal_api_key_when_set(monkeypatch, tmp_path):
+    client = _logged_in_client(monkeypatch, tmp_path, email="personal-key@kku.ac.th")
+    sid = client.post(
+        "/api/session", json={"name": "x", "title": "x", "llmApiKey": "sk_personal_123"}
+    ).json()["sessionId"]
+
+    captured = {}
+
+    def fake_extract(text, provider=None):
+        captured["provider"] = provider
+        return FAKE_COURSE
+
+    monkeypatch.setattr(main_module, "extract_course", fake_extract)
+
+    with open(FIXTURES / "PT.docx", "rb") as f:
+        client.post("/api/extract", data={"sid": sid}, files={"spec": ("PT.docx", f)})
+
+    assert captured["provider"] is not None
+    assert captured["provider"].client.api_key == "sk_personal_123"
+
+
+def test_extract_uses_shared_key_when_no_personal_key_set(monkeypatch, tmp_path):
+    client = _logged_in_client(monkeypatch, tmp_path, email="shared-key@kku.ac.th")
+    sid = _create_session(client)
+
+    captured = {}
+
+    def fake_extract(text, provider=None):
+        captured["provider"] = provider
+        return FAKE_COURSE
+
+    monkeypatch.setattr(main_module, "extract_course", fake_extract)
+
+    with open(FIXTURES / "PT.docx", "rb") as f:
+        client.post("/api/extract", data={"sid": sid}, files={"spec": ("PT.docx", f)})
+
+    assert captured["provider"] is None  # extract_course falls back to the shared key itself
+
+
 def test_extract_stores_slides_text_when_provided(monkeypatch, tmp_path):
     client = _logged_in_client(monkeypatch, tmp_path)
     sid = _create_session(client)
-    monkeypatch.setattr(main_module, "extract_course", lambda text: FAKE_COURSE)
+    monkeypatch.setattr(main_module, "extract_course", lambda text, provider=None: FAKE_COURSE)
 
     with open(FIXTURES / "PT.docx", "rb") as spec_f, \
          open(FIXTURES / "Autonomic_Nervous_System.pptx", "rb") as slides_f:
@@ -86,7 +125,7 @@ def test_extract_surfaces_502_when_extraction_persistently_fails(monkeypatch, tm
     client = _logged_in_client(monkeypatch, tmp_path)
     sid = _create_session(client)
 
-    def always_broken(text):
+    def always_broken(text, provider=None):
         raise ValidationError.from_exception_data("ExtractedCourse", [])
 
     monkeypatch.setattr(main_module, "extract_course", always_broken)
@@ -107,7 +146,7 @@ def test_extract_surfaces_502_on_llm_gateway_api_error(monkeypatch, tmp_path):
     client = _logged_in_client(monkeypatch, tmp_path)
     sid = _create_session(client)
 
-    def always_quota_exhausted(text):
+    def always_quota_exhausted(text, provider=None):
         request = httpx.Request("POST", "https://gen.ai.kku.ac.th/api/v1/chat/completions")
         response = httpx.Response(401, request=request, json={"error": "This model reached daily limit."})
         raise openai.AuthenticationError("daily limit", response=response, body=None)
@@ -155,7 +194,7 @@ def test_get_course_404_for_other_users_session(monkeypatch, tmp_path):
 def test_put_course_persists_instructor_corrections(monkeypatch, tmp_path):
     client = _logged_in_client(monkeypatch, tmp_path)
     sid = _create_session(client)
-    monkeypatch.setattr(main_module, "extract_course", lambda text: FAKE_COURSE)
+    monkeypatch.setattr(main_module, "extract_course", lambda text, provider=None: FAKE_COURSE)
     with open(FIXTURES / "PT.docx", "rb") as f:
         client.post("/api/extract", data={"sid": sid}, files={"spec": ("PT.docx", f)})
 

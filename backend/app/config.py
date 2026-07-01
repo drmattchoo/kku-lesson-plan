@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     google_client_secret: str = ""
     allowed_email_domain: str = "kku.ac.th"
+    # Comma-separated extra emails allowed to log in (e.g. external testers).
+    # Example: EXTRA_ALLOWED_EMAILS=dev@gmail.com,tester@example.com
+    extra_allowed_emails: str = ""
 
     llm_base_url: str = "https://gen.ai.kku.ac.th/api/v1"
     llm_api_key: str = ""

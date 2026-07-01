@@ -60,7 +60,7 @@ def _session_with_course(client):
 def test_create_outline_returns_draft_and_persists_in_session(monkeypatch, tmp_path):
     client = _logged_in_client(monkeypatch, tmp_path)
     sid = _session_with_course(client)
-    monkeypatch.setattr(main_module, "generate_outline", lambda lecture, clos, grounding=None: FAKE_OUTLINE)
+    monkeypatch.setattr(main_module, "generate_outline", lambda lecture, clos, grounding=None, provider=None: FAKE_OUTLINE)
 
     resp = client.post("/api/outline", json={"sid": sid, "lectureId": "4"})
 
@@ -77,7 +77,7 @@ def test_create_outline_returns_draft_and_persists_in_session(monkeypatch, tmp_p
 def test_create_outline_404_when_lecture_not_in_course(monkeypatch, tmp_path):
     client = _logged_in_client(monkeypatch, tmp_path)
     sid = _session_with_course(client)
-    monkeypatch.setattr(main_module, "generate_outline", lambda lecture, clos, grounding=None: FAKE_OUTLINE)
+    monkeypatch.setattr(main_module, "generate_outline", lambda lecture, clos, grounding=None, provider=None: FAKE_OUTLINE)
 
     resp = client.post("/api/outline", json={"sid": sid, "lectureId": "does-not-exist"})
 
@@ -88,7 +88,7 @@ def test_create_outline_surfaces_502_when_generation_persistently_fails(monkeypa
     client = _logged_in_client(monkeypatch, tmp_path, email="outline-fail@kku.ac.th")
     sid = _session_with_course(client)
 
-    def always_broken(lecture, clos, grounding=None):
+    def always_broken(lecture, clos, grounding=None, provider=None):
         raise KeyError("keyPoints")
 
     monkeypatch.setattr(main_module, "generate_outline", always_broken)
@@ -110,7 +110,7 @@ def test_create_outline_requires_login(tmp_path, monkeypatch):
 def test_create_outline_is_rate_limited_per_user(monkeypatch, tmp_path):
     client = _logged_in_client(monkeypatch, tmp_path, email="ratelimit-outline@kku.ac.th")
     sid = _session_with_course(client)
-    monkeypatch.setattr(main_module, "generate_outline", lambda lecture, clos, grounding=None: FAKE_OUTLINE)
+    monkeypatch.setattr(main_module, "generate_outline", lambda lecture, clos, grounding=None, provider=None: FAKE_OUTLINE)
 
     for _ in range(10):
         resp = client.post("/api/outline", json={"sid": sid, "lectureId": "4"})

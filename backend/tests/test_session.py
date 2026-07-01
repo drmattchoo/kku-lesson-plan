@@ -109,3 +109,53 @@ def test_update_session_404_for_unknown_session(monkeypatch, tmp_path):
     resp = client.put("/api/session/does-not-exist", json=VALID_PROFILE)
 
     assert resp.status_code == 404
+
+
+def test_personal_api_key_is_stored_but_never_echoed_back(monkeypatch, tmp_path):
+    client = _logged_in_client(monkeypatch, tmp_path)
+    sid = client.post(
+        "/api/session", json={**VALID_PROFILE, "llmApiKey": "sk_personal_123"}
+    ).json()["sessionId"]
+
+    stored = session_store.get_session(sid)
+    assert stored["instructorProfile"]["llmApiKey"] == "sk_personal_123"
+
+    resp = client.get(f"/api/session/{sid}")
+    body = resp.json()
+    assert body["hasPersonalApiKey"] is True
+    assert body["instructorProfile"]["llmApiKey"] == ""
+
+
+def test_get_session_reports_no_personal_key_when_none_set(monkeypatch, tmp_path):
+    client = _logged_in_client(monkeypatch, tmp_path)
+    sid = client.post("/api/session", json=VALID_PROFILE).json()["sessionId"]
+
+    resp = client.get(f"/api/session/{sid}")
+
+    assert resp.json()["hasPersonalApiKey"] is False
+
+
+def test_update_session_blank_key_preserves_existing_key(monkeypatch, tmp_path):
+    client = _logged_in_client(monkeypatch, tmp_path)
+    sid = client.post(
+        "/api/session", json={**VALID_PROFILE, "llmApiKey": "sk_original"}
+    ).json()["sessionId"]
+
+    resp = client.put(f"/api/session/{sid}", json={"name": "ชื่อใหม่", "title": "x"})
+
+    assert resp.status_code == 200
+    stored = session_store.get_session(sid)
+    assert stored["instructorProfile"]["llmApiKey"] == "sk_original"
+    assert stored["instructorProfile"]["name"] == "ชื่อใหม่"
+
+
+def test_update_session_nonblank_key_replaces_existing_key(monkeypatch, tmp_path):
+    client = _logged_in_client(monkeypatch, tmp_path)
+    sid = client.post(
+        "/api/session", json={**VALID_PROFILE, "llmApiKey": "sk_original"}
+    ).json()["sessionId"]
+
+    client.put(f"/api/session/{sid}", json={**VALID_PROFILE, "llmApiKey": "sk_replacement"})
+
+    stored = session_store.get_session(sid)
+    assert stored["instructorProfile"]["llmApiKey"] == "sk_replacement"

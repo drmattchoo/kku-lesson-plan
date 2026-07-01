@@ -59,3 +59,16 @@ def test_get_provider_uses_configured_default_model(monkeypatch):
 def test_get_provider_allows_explicit_model_override():
     provider = get_provider(model="claude-sonnet-4.6")
     assert provider.model == "claude-sonnet-4.6"
+
+
+def test_provider_uses_explicit_api_key_over_shared_one():
+    provider = LLMProvider(api_key="sk_personal_key")
+    assert provider.client.api_key == "sk_personal_key"
+
+
+def test_provider_falls_back_to_shared_key_when_none_given(monkeypatch):
+    import app.llm as llm_module
+
+    monkeypatch.setattr(llm_module.settings, "llm_api_key", "sk_shared_key")
+    provider = LLMProvider()
+    assert provider.client.api_key == "sk_shared_key"

@@ -18,8 +18,8 @@ class LLMProvider:
     """Thin wrapper around the KKU gateway (gen.ai.kku.ac.th) — one OpenAI-compatible
     endpoint that routes to either backend (Claude or GPT) by model name."""
 
-    def __init__(self, model: str | None = None):
-        self.client = OpenAI(base_url=settings.llm_base_url, api_key=settings.llm_api_key)
+    def __init__(self, model: str | None = None, api_key: str | None = None):
+        self.client = OpenAI(base_url=settings.llm_base_url, api_key=api_key or settings.llm_api_key)
         self.model = model or settings.active_model
 
     def complete(self, system: str, user: str, *, max_tokens: int = 1024) -> str:
@@ -38,5 +38,5 @@ class LLMProvider:
         return json.loads(_strip_code_fence(raw))
 
 
-def get_provider(model: str | None = None) -> LLMProvider:
-    return LLMProvider(model=model)
+def get_provider(model: str | None = None, api_key: str | None = None) -> LLMProvider:
+    return LLMProvider(model=model, api_key=api_key)

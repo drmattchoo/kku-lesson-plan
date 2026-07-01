@@ -8,6 +8,9 @@ from pydantic import BaseModel
 class InstructorProfile(BaseModel):
     name: str
     title: str
+    llmApiKey: str = ""  # optional personal gen.ai.kku.ac.th key; falls back to the
+    # shared server-side key (LLM_API_KEY) when blank. Never echoed back in API
+    # responses — see main.py's read_session.
 
 
 class PLO(BaseModel):
