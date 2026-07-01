@@ -80,22 +80,20 @@ def test_extract_uses_instructors_personal_api_key_when_set(monkeypatch, tmp_pat
     assert captured["provider"].client.api_key == "sk_personal_123"
 
 
-def test_extract_uses_shared_key_when_no_personal_key_set(monkeypatch, tmp_path):
-    client = _logged_in_client(monkeypatch, tmp_path, email="shared-key@kku.ac.th")
+def test_extract_returns_400_when_no_api_key_at_all(monkeypatch, tmp_path):
+    # No personal key in session, no shared LLM_API_KEY configured — must reject cleanly.
+    import app.main as main_mod
+    import app.config as config_mod
+
+    client = _logged_in_client(monkeypatch, tmp_path, email="no-key@kku.ac.th")
     sid = _create_session(client)
-
-    captured = {}
-
-    def fake_extract(text, provider=None):
-        captured["provider"] = provider
-        return FAKE_COURSE
-
-    monkeypatch.setattr(main_module, "extract_course", fake_extract)
+    monkeypatch.setattr(config_mod.settings, "llm_api_key", "")
 
     with open(FIXTURES / "PT.docx", "rb") as f:
-        client.post("/api/extract", data={"sid": sid}, files={"spec": ("PT.docx", f)})
+        resp = client.post("/api/extract", data={"sid": sid}, files={"spec": ("PT.docx", f)})
 
-    assert captured["provider"] is None  # extract_course falls back to the shared key itself
+    assert resp.status_code == 400
+    assert "API Key" in resp.json()["detail"]
 
 
 def test_extract_stores_slides_text_when_provided(monkeypatch, tmp_path):

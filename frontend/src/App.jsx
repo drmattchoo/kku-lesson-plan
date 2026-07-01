@@ -45,6 +45,11 @@ function InstructorForm({ sessionId, initialProfile, hasPersonalApiKey, onSaved,
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
+  // Key is required only when creating a new session (POST).
+  // On edit (PUT), blank = preserve existing key.
+  const isNew = !sessionId
+  const keyRequired = isNew && !hasPersonalApiKey
+
   function update(field) {
     return (e) => setProfile({ ...profile, [field]: e.target.value })
   }
@@ -85,18 +90,22 @@ function InstructorForm({ sessionId, initialProfile, hasPersonalApiKey, onSaved,
         <input required value={profile.title} onChange={update('title')} />
       </label>
       <label>
-        API Key ส่วนตัว (ไม่บังคับ)
+        API Key (gen.ai.kku.ac.th){keyRequired ? ' *' : ''}
         <input
           type="password"
+          required={keyRequired}
           value={profile.llmApiKey}
           onChange={update('llmApiKey')}
           placeholder={
-            hasPersonalApiKey ? 'บันทึกไว้แล้ว — เว้นว่างเพื่อใช้คีย์เดิม' : 'เว้นว่างเพื่อใช้โควต้าส่วนกลาง'
+            hasPersonalApiKey
+              ? 'บันทึกไว้แล้ว — เว้นว่างเพื่อใช้คีย์เดิม'
+              : 'วาง API Key ของคุณที่นี่'
           }
         />
       </label>
       <p className="hint">
-        หากมี API key ส่วนตัวจาก gen.ai.kku.ac.th และไม่ต้องการใช้โควต้าส่วนกลาง สามารถกรอกได้ที่นี่
+        ระบบไม่มีโควต้าส่วนกลาง — ต้องใช้ API Key ส่วนตัวจาก{' '}
+        <a href="https://gen.ai.kku.ac.th" target="_blank" rel="noreferrer">gen.ai.kku.ac.th</a>
       </p>
 
       {error && <p className="form-error">{error}</p>}

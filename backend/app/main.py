@@ -73,10 +73,15 @@ def _owned_session(sid: str, user: dict) -> dict:
 
 
 def _provider_for_session(session: dict):
-    """Use the instructor's personal LLM key if they set one, else fall back to the
-    shared server key (LLMProvider's own default)."""
-    api_key = (session.get("instructorProfile") or {}).get("llmApiKey")
-    return get_provider(api_key=api_key) if api_key else None
+    """Use the instructor's personal LLM key. Falls back to shared key only when one
+    is configured server-side (admin/testing). Raises 400 if neither is set."""
+    api_key = (session.get("instructorProfile") or {}).get("llmApiKey") or settings.llm_api_key
+    if not api_key:
+        raise HTTPException(
+            status_code=400,
+            detail="กรุณาใส่ API Key ส่วนตัวของคุณที่ขั้นตอนแรก",
+        )
+    return get_provider(api_key=api_key)
 
 
 def _save_upload_to_tmp(upload: UploadFile) -> Path:
